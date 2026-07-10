@@ -1,4 +1,4 @@
-const CACHE_NAME = "kikin-stempel-v4";
+const CACHE_NAME = "kikin-stempel-v5";
 const ASSETS = [
   "./",
   "./index.html",

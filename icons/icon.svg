@@ -1,13 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#fff7ed"/>
-  <circle cx="130" cy="116" r="58" fill="#ffd166"/>
-  <circle cx="398" cy="142" r="42" fill="#88d8ff"/>
-  <path d="M126 318c-52-18-88-56-106-112 62 2 110 34 144 92Z" fill="#ff7ab6"/>
-  <path d="M122 332c30-94 104-152 222-152h70c62 0 114 40 128 102l18 84h-56l-22-72H262l-42 118h-58l40-118c-36 8-66 36-86 92H58c12-24 34-42 64-54Z" fill="#8b5cf6"/>
-  <path d="M372 196c28-56 76-92 142-106 4 64-34 120-98 150Z" fill="#7c3aed"/>
-  <path d="M414 158c36-28 76-40 122-32-16 38-52 62-104 72Z" fill="#f97316"/>
-  <path d="M244 370h52v86h-52zM444 370h52v86h-52z" fill="#4c1d95"/>
-  <circle cx="452" cy="220" r="17" fill="#fff"/>
-  <circle cx="460" cy="220" r="7" fill="#2b2230"/>
-  <path d="M486 264c16 12 32 12 48 0" fill="none" stroke="#2b2230" stroke-linecap="round" stroke-width="12"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Smiling stamp app icon">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#fff9e8"/>
+      <stop offset="62%" stop-color="#ffe0a3"/>
+      <stop offset="100%" stop-color="#fff7ed"/>
+    </radialGradient>
+    <linearGradient id="stampPink" x1="158" y1="74" x2="338" y2="312" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff9a9e"/>
+      <stop offset="58%" stop-color="#ff6f86"/>
+      <stop offset="100%" stop-color="#f25470"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="105" y1="260" x2="390" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff5d9"/>
+      <stop offset="100%" stop-color="#ffc977"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#cc6b46" flood-opacity=".28"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="264" r="178" fill="#ffd47d" opacity=".48"/>
+
+  <g filter="url(#softShadow)">
+    <path d="M177 279c10-19 28-31 52-35 28-4 37-19 35-50-2-42 29-80 79-80 49 0 83 35 83 78 0 28-13 48-33 64-17 14-25 30-26 51l-1 33H190Z" fill="url(#stampPink)"/>
+    <path d="M166 306c0-32 34-58 76-58h146c42 0 76 26 76 58 0 31-34 57-76 57H242c-42 0-76-26-76-57Z" fill="url(#cream)"/>
+    <path d="M173 339c16 24 43 39 75 39h140c35 0 66-17 80-43v26c0 24-31 44-70 44H235c-39 0-70-20-70-44v-27c3 2 5 4 8 5Z" fill="#3b2b33"/>
+  </g>
+
+  <ellipse cx="231" cy="184" rx="15" ry="22" fill="#332832" transform="rotate(8 231 184)"/>
+  <ellipse cx="334" cy="184" rx="15" ry="22" fill="#332832" transform="rotate(8 334 184)"/>
+  <circle cx="204" cy="221" r="20" fill="#ff6b68" opacity=".78"/>
+  <circle cx="362" cy="221" r="20" fill="#ff6b68" opacity=".78"/>
+  <path d="M265 217c11 24 45 24 58 0" fill="none" stroke="#332832" stroke-width="13" stroke-linecap="round"/>
+
+  <g transform="rotate(-8 242 409)">
+    <circle cx="242" cy="409" r="70" fill="none" stroke="#f25470" stroke-width="18" opacity=".9"/>
+    <path d="M207 408l29 28 57-58" fill="none" stroke="#f25470" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>
