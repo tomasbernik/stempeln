@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#ff7ab6">
+    <meta name="description" content="Jednoducha dochadzkova appka pre mobil.">
+    <title>Kikin Stempel</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Kikin pracovny den</p>
+          <h1>Stempel</h1>
+        </div>
+        <svg class="horse" viewBox="0 0 120 88" role="img" aria-label="Vesely konik">
+          <path d="M22 58c6-20 18-32 36-32h22c10 0 17 7 18 17l2 20h-9l-4-18H54L46 63h-9l7-18c-8 2-13 8-16 18h-9l3-5Z" fill="#7c3aed"/>
+          <path d="M78 26c3-11 10-17 21-19-1 8-5 14-12 19h-9Z" fill="#f97316"/>
+          <path d="M92 27c4-9 12-13 22-12-3 7-9 12-18 14l-4-2Z" fill="#22c55e"/>
+          <circle cx="84" cy="36" r="3" fill="#fff"/>
+          <path d="M29 56c-10 1-17-3-21-12 8-2 15 0 22 7l-1 5Z" fill="#ff7ab6"/>
+          <path d="M50 64h8v15h-8zM83 64h8v15h-8z" fill="#4c1d95"/>
+        </svg>
+      </header>
+
+      <main>
+        <section id="loginView" class="panel auth-panel" hidden>
+          <p class="eyebrow">Prihlasenie</p>
+          <h2>Najprv sa prihlas</h2>
+          <button id="googleLoginButton" class="primary wide" type="button">Pokračovať cez Google</button>
+          <div class="email-login">
+            <input id="emailInput" type="email" inputmode="email" autocomplete="email" placeholder="email@adresa.sk">
+            <button id="emailLoginButton" type="button">Poslať link</button>
+          </div>
+          <p id="loginMessage" class="tiny"></p>
+        </section>
+
+        <section id="mainView" hidden>
+          <section class="stamp-card">
+            <div>
+              <p id="todayLabel" class="eyebrow">Dnes</p>
+              <h2 id="todayStatus">Nezapisane</h2>
+              <p id="todayTimes" class="soft">Prichod a odchod sa zapisu jednym klepnutim.</p>
+            </div>
+            <div class="stamp-actions">
+              <button id="clockInButton" class="stamp in" type="button">Einstempeln</button>
+              <button id="clockOutButton" class="stamp out" type="button">Ausstempeln</button>
+            </div>
+          </section>
+
+          <section class="panel editor-panel">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Manualne</p>
+                <h2>Upravit den</h2>
+              </div>
+              <button id="newEntryButton" type="button">Novy den</button>
+            </div>
+            <form id="entryForm" class="entry-form">
+              <input id="entryIdInput" type="hidden">
+              <label>
+                Datum
+                <input id="dateInput" type="date" required>
+              </label>
+              <div class="two-cols">
+                <label>
+                  Prichod
+                  <input id="clockInInput" type="time">
+                </label>
+                <label>
+                  Odchod
+                  <input id="clockOutInput" type="time">
+                </label>
+              </div>
+              <div class="two-cols">
+                <label>
+                  Prestavka
+                  <select id="breakInput">
+                    <option value="0">0 min</option>
+                    <option value="15">15 min</option>
+                    <option value="30" selected>30 min</option>
+                    <option value="45">45 min</option>
+                    <option value="60">60 min</option>
+                  </select>
+                </label>
+                <label>
+                  Typ
+                  <select id="typeInput">
+                    <option value="work" selected>Praca</option>
+                    <option value="vacation">Dovolenka</option>
+                    <option value="sick">PN</option>
+                    <option value="holiday">Sviatok</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                Poznamka
+                <input id="noteInput" type="text" maxlength="120" placeholder="volitelne">
+              </label>
+              <div class="form-actions">
+                <button class="primary" type="submit">Ulozit</button>
+                <button id="deleteButton" class="danger" type="button" hidden>Zmazat</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel overview-panel">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Prehlad</p>
+                <h2>Mesiac</h2>
+              </div>
+              <input id="monthInput" type="month">
+            </div>
+
+            <div class="summary">
+              <div>
+                <span>Spolu</span>
+                <strong id="totalHours">0:00</strong>
+              </div>
+              <div>
+                <span>Dni</span>
+                <strong id="totalDays">0</strong>
+              </div>
+              <div>
+                <span>Priemer</span>
+                <strong id="averageHours">0:00</strong>
+              </div>
+            </div>
+
+            <div class="export-actions">
+              <button id="exportCsvButton" type="button">Export CSV</button>
+              <button id="shareButton" type="button">Zdielat</button>
+            </div>
+
+            <div id="entriesList" class="entries-list"></div>
+          </section>
+        </section>
+      </main>
+
+      <footer>
+        <button id="syncButton" type="button">Synchronizovat</button>
+        <button id="logoutButton" type="button" hidden>Odhlasit</button>
+        <p id="appMessage" class="tiny"></p>
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
