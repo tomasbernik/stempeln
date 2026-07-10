@@ -1,6 +1,6 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config.js";
 
-const TABLE = "work_entries";
+const TABLE = "stempeln_work_entries";
 const isConfigured = SUPABASE_URL.startsWith("https://")
   && !SUPABASE_URL.includes("YOUR-PROJECT")
   && !SUPABASE_ANON_KEY.includes("YOUR-SUPABASE")
@@ -239,7 +239,7 @@ function fillForm(entry = null) {
   controls.date.value = entry?.work_date || localDate();
   controls.clockIn.value = toTimeInput(entry?.clock_in);
   controls.clockOut.value = toTimeInput(entry?.clock_out);
-  controls.breakMinutes.value = String(entry?.break_minutes ?? 30);
+  controls.breakMinutes.value = String(entry?.break_minutes ?? 0);
   controls.type.value = entry?.type || "work";
   controls.note.value = entry?.note || "";
   controls.deleteButton.hidden = !entry?.id;
@@ -269,7 +269,7 @@ function renderToday() {
 
   if (!current) {
     controls.todayStatus.textContent = "Este nezapisane";
-    controls.todayTimes.textContent = "Staci klepnut na Einstempeln.";
+    controls.todayTimes.textContent = "";
     controls.clockInButton.disabled = false;
     controls.clockOutButton.disabled = true;
     return;
@@ -352,7 +352,7 @@ async function stamp(kind) {
     work_date: localDate(now),
     clock_in: null,
     clock_out: null,
-    break_minutes: 30,
+    break_minutes: 0,
     type: "work",
     note: "",
   };
@@ -422,7 +422,7 @@ $("#emailLoginButton").addEventListener("click", signInWithEmail);
 $("#logoutButton").addEventListener("click", signOut);
 $("#syncButton").addEventListener("click", async () => {
   await refresh();
-  setMessage("Synchronizovane.");
+  setMessage("Obnovene.");
 });
 
 controls.clockInButton.addEventListener("click", () => stamp("in"));

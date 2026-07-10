@@ -4,8 +4,8 @@ Jednoducha PWA dochadzka pre mobil. Kika vie otvorit appku, klepnut na `Einstemp
 
 ## Co treba nastavit
 
-1. V Supabase vytvor novy projekt.
-2. V SQL editore spusti obsah suboru `supabase.sql`.
+1. V Supabase mozes pouzit existujuci projekt.
+2. V SQL editore spusti obsah suboru `supabase.sql`; vytvori tabulku `stempeln_work_entries`, takze sa nebude miesat s inymi appkami.
 3. V Supabase zapni Auth provider Google alebo aspon email magic link.
 4. V `Authentication -> URL Configuration` nastav Site URL na GitHub Pages adresu, napriklad `https://tomasbernik.github.io/stempeln/`.
 5. Do Redirect URLs pridaj tu istu adresu.

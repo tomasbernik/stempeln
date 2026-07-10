@@ -36,10 +36,14 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle, rgba(255, 122, 182, 0.18) 0 5px, transparent 6px),
-    radial-gradient(circle, rgba(114, 230, 177, 0.18) 0 4px, transparent 5px);
-  background-position: 24px 24px, 72px 62px;
-  background-size: 124px 124px;
+    radial-gradient(circle, rgba(255, 122, 182, 0.20) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
+    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
+    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
+    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
+    radial-gradient(circle, rgba(114, 230, 177, 0.12) 0 3px, transparent 4px);
+  background-position: 28px 28px, 28px 18px, 38px 28px, 28px 38px, 18px 28px, 94px 74px;
+  background-size: 142px 142px;
 }
 
 button,
@@ -120,9 +124,36 @@ h2 {
 }
 
 .horse {
-  flex: 0 0 118px;
-  width: 118px;
+  flex: 0 0 132px;
+  width: 132px;
   filter: drop-shadow(0 8px 12px rgba(124, 58, 237, 0.18));
+}
+
+.horse-body {
+  fill: var(--violet);
+}
+
+.horse-tail {
+  fill: var(--pink);
+}
+
+.horse-neck {
+  fill: #7c3aed;
+}
+
+.horse-mane {
+  fill: #f97316;
+}
+
+.horse-leg {
+  fill: #4c1d95;
+}
+
+.horse-smile {
+  fill: none;
+  stroke: #2b2230;
+  stroke-linecap: round;
+  stroke-width: 3;
 }
 
 .eyebrow {
@@ -180,6 +211,12 @@ h2 {
 
 .primary:hover {
   background: var(--pink-dark);
+}
+
+.quiet {
+  border-color: rgba(247, 198, 217, 0.65);
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--muted);
 }
 
 .danger {

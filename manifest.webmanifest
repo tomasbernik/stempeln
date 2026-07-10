@@ -1,6 +1,6 @@
 {
-  "name": "Kikin Stempel",
-  "short_name": "Stempel",
+  "name": "Stempeln",
+  "short_name": "Stempeln",
   "description": "Jednoducha dochadzka s rychlym zapisom prichodu a odchodu.",
   "start_url": "./",
   "scope": "./",

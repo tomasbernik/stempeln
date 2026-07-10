@@ -1,6 +1,6 @@
 create extension if not exists "pgcrypto";
 
-create table if not exists public.work_entries (
+create table if not exists public.stempeln_work_entries (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   work_date date not null,
@@ -14,26 +14,26 @@ create table if not exists public.work_entries (
   unique (user_id, work_date)
 );
 
-alter table public.work_entries enable row level security;
+alter table public.stempeln_work_entries enable row level security;
 
-create policy "Users can read own entries"
-  on public.work_entries for select
+create policy "Stempeln users can read own entries"
+  on public.stempeln_work_entries for select
   using (auth.uid() = user_id);
 
-create policy "Users can insert own entries"
-  on public.work_entries for insert
+create policy "Stempeln users can insert own entries"
+  on public.stempeln_work_entries for insert
   with check (auth.uid() = user_id);
 
-create policy "Users can update own entries"
-  on public.work_entries for update
+create policy "Stempeln users can update own entries"
+  on public.stempeln_work_entries for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
-create policy "Users can delete own entries"
-  on public.work_entries for delete
+create policy "Stempeln users can delete own entries"
+  on public.stempeln_work_entries for delete
   using (auth.uid() = user_id);
 
-create or replace function public.set_updated_at()
+create or replace function public.set_stempeln_updated_at()
 returns trigger
 language plpgsql
 as $$
@@ -43,7 +43,7 @@ begin
 end;
 $$;
 
-drop trigger if exists set_work_entries_updated_at on public.work_entries;
-create trigger set_work_entries_updated_at
-before update on public.work_entries
-for each row execute function public.set_updated_at();
+drop trigger if exists set_stempeln_work_entries_updated_at on public.stempeln_work_entries;
+create trigger set_stempeln_work_entries_updated_at
+before update on public.stempeln_work_entries
+for each row execute function public.set_stempeln_updated_at();

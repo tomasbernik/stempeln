@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#ff7ab6">
     <meta name="description" content="Jednoducha dochadzkova appka pre mobil.">
-    <title>Kikin Stempel</title>
+    <title>Stempeln</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icons/icon.svg">
@@ -15,16 +15,17 @@
     <div class="app-shell">
       <header class="hero">
         <div>
-          <p class="eyebrow">Kikin pracovny den</p>
-          <h1>Stempel</h1>
+          <h1>Stempeln</h1>
         </div>
-        <svg class="horse" viewBox="0 0 120 88" role="img" aria-label="Vesely konik">
-          <path d="M22 58c6-20 18-32 36-32h22c10 0 17 7 18 17l2 20h-9l-4-18H54L46 63h-9l7-18c-8 2-13 8-16 18h-9l3-5Z" fill="#7c3aed"/>
-          <path d="M78 26c3-11 10-17 21-19-1 8-5 14-12 19h-9Z" fill="#f97316"/>
-          <path d="M92 27c4-9 12-13 22-12-3 7-9 12-18 14l-4-2Z" fill="#22c55e"/>
-          <circle cx="84" cy="36" r="3" fill="#fff"/>
-          <path d="M29 56c-10 1-17-3-21-12 8-2 15 0 22 7l-1 5Z" fill="#ff7ab6"/>
-          <path d="M50 64h8v15h-8zM83 64h8v15h-8z" fill="#4c1d95"/>
+        <svg class="horse" viewBox="0 0 150 110" role="img" aria-label="Konik">
+          <path class="horse-tail" d="M38 65c-14-5-24-15-29-29 16 0 28 8 37 23Z"/>
+          <path class="horse-body" d="M36 68c8-24 27-39 57-39h18c16 0 29 10 33 26l5 21h-14l-6-18H72L61 88H47l11-30c-9 2-16 9-21 23H22c3-6 8-11 14-13Z"/>
+          <path class="horse-neck" d="M100 34c7-14 19-23 36-27 1 16-9 30-25 38Z"/>
+          <path class="horse-mane" d="M111 24c9-7 19-10 31-8-4 10-13 16-26 18Z"/>
+          <path class="horse-leg" d="M66 78h13v25H66zM116 78h13v25h-13z"/>
+          <circle cx="119" cy="38" r="4" fill="#fff"/>
+          <circle cx="121" cy="38" r="1.8" fill="#2b2230"/>
+          <path class="horse-smile" d="M127 49c4 3 8 3 12 0"/>
         </svg>
       </header>
 
@@ -81,9 +82,9 @@
                 <label>
                   Prestavka
                   <select id="breakInput">
-                    <option value="0">0 min</option>
+                    <option value="0" selected>0 min</option>
                     <option value="15">15 min</option>
-                    <option value="30" selected>30 min</option>
+                    <option value="30">30 min</option>
                     <option value="45">45 min</option>
                     <option value="60">60 min</option>
                   </select>
@@ -144,7 +145,7 @@
       </main>
 
       <footer>
-        <button id="syncButton" type="button">Synchronizovat</button>
+        <button id="syncButton" class="quiet" type="button">Obnovit udaje</button>
         <button id="logoutButton" type="button" hidden>Odhlasit</button>
         <p id="appMessage" class="tiny"></p>
       </footer>
