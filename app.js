@@ -271,7 +271,7 @@ async function saveEntry(entry) {
   const payload = { ...entry, user_id: userId() };
   const { data, error } = await supabaseClient
     .from(TABLE)
-    .upsert(payload)
+    .upsert(payload, { onConflict: "user_id,work_date" })
     .select()
     .single();
   if (error) throw error;
@@ -305,8 +305,16 @@ function fillForm(entry = null) {
   controls.deleteButton.hidden = !entry?.id;
 }
 
+function entryForDate(date) {
+  return entries.find((entry) => entry.work_date === date);
+}
+
 function readForm() {
-  const id = controls.entryId.value || crypto.randomUUID();
+  const existingForDate = entryForDate(controls.date.value);
+  const loadedEntry = entries.find((entry) => entry.id === controls.entryId.value);
+  const id = existingForDate?.id
+    || (loadedEntry?.work_date === controls.date.value ? loadedEntry.id : crypto.randomUUID());
+
   return {
     id,
     user_id: userId(),
@@ -501,6 +509,20 @@ controls.dismissInstallButton.addEventListener("click", () => {
 
 controls.clockInButton.addEventListener("click", () => stamp("in"));
 controls.clockOutButton.addEventListener("click", () => stamp("out"));
+
+controls.date.addEventListener("change", () => {
+  const existing = entryForDate(controls.date.value);
+  if (existing) {
+    fillForm(existing);
+    return;
+  }
+
+  const loadedEntry = entries.find((entry) => entry.id === controls.entryId.value);
+  if (loadedEntry?.work_date !== controls.date.value) {
+    controls.entryId.value = "";
+    controls.deleteButton.hidden = true;
+  }
+});
 
 $("#entryForm").addEventListener("submit", async (event) => {
   event.preventDefault();
