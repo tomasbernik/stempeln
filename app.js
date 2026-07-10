@@ -87,9 +87,38 @@ function toTimeInput(value) {
   }).format(new Date(value));
 }
 
+function normalizeTimeInput(value) {
+  const raw = String(value || "").trim().replace(".", ":");
+  if (!raw) return "";
+
+  let hourText;
+  let minuteText;
+
+  if (raw.includes(":")) {
+    [hourText, minuteText = "0"] = raw.split(":");
+  } else if (/^\d{1,2}$/.test(raw)) {
+    hourText = raw;
+    minuteText = "0";
+  } else if (/^\d{3,4}$/.test(raw)) {
+    hourText = raw.slice(0, -2);
+    minuteText = raw.slice(-2);
+  } else {
+    return "";
+  }
+
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+    return "";
+  }
+
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
 function dateAndTimeToIso(date, time) {
-  if (!date || !time) return null;
-  const [hour, minute] = time.split(":").map(Number);
+  const normalizedTime = normalizeTimeInput(time);
+  if (!date || !normalizedTime) return null;
+  const [hour, minute] = normalizedTime.split(":").map(Number);
   const value = new Date(`${date}T00:00:00`);
   value.setHours(hour, minute, 0, 0);
   return value.toISOString();
@@ -271,7 +300,7 @@ async function saveEntry(entry) {
   const payload = { ...entry, user_id: userId() };
   const { data, error } = await supabaseClient
     .from(TABLE)
-    .upsert(payload, { onConflict: "user_id,work_date" })
+    .upsert(payload)
     .select()
     .single();
   if (error) throw error;
@@ -290,8 +319,22 @@ async function deleteEntry(id) {
   if (error) throw error;
 }
 
+function entryTimeValue(entry) {
+  return new Date(entry.clock_in || entry.clock_out || `${entry.work_date}T00:00:00`).getTime();
+}
+
+function entriesForDate(date) {
+  return entries
+    .filter((entry) => entry.work_date === date)
+    .sort((a, b) => entryTimeValue(b) - entryTimeValue(a));
+}
+
 function todayEntry() {
-  return entries.find((entry) => entry.work_date === localDate());
+  return entriesForDate(localDate())[0];
+}
+
+function activeTodayEntry() {
+  return entriesForDate(localDate()).find((entry) => entry.clock_in && !entry.clock_out);
 }
 
 function fillForm(entry = null) {
@@ -306,14 +349,12 @@ function fillForm(entry = null) {
 }
 
 function entryForDate(date) {
-  return entries.find((entry) => entry.work_date === date);
+  return entriesForDate(date)[0];
 }
 
 function readForm() {
-  const existingForDate = entryForDate(controls.date.value);
   const loadedEntry = entries.find((entry) => entry.id === controls.entryId.value);
-  const id = existingForDate?.id
-    || (loadedEntry?.work_date === controls.date.value ? loadedEntry.id : crypto.randomUUID());
+  const id = loadedEntry?.work_date === controls.date.value ? loadedEntry.id : crypto.randomUUID();
 
   return {
     id,
@@ -327,8 +368,15 @@ function readForm() {
   };
 }
 
+function cleanTimeField(input) {
+  const normalized = normalizeTimeInput(input.value);
+  if (normalized) input.value = normalized;
+  return !input.value.trim() || Boolean(normalized);
+}
+
 function renderToday() {
-  const current = todayEntry();
+  const active = activeTodayEntry();
+  const current = active || todayEntry();
   controls.todayLabel.textContent = new Intl.DateTimeFormat("de-DE", {
     weekday: "long",
     day: "2-digit",
@@ -345,14 +393,17 @@ function renderToday() {
 
   const inTime = toTimeInput(current.clock_in) || "--:--";
   const outTime = toTimeInput(current.clock_out) || "--:--";
-  controls.todayStatus.textContent = current.clock_out ? "Fertig" : "Bei der Arbeit";
+  controls.todayStatus.textContent = active ? "Bei der Arbeit" : "Bereit";
   controls.todayTimes.textContent = `${inTime} - ${outTime}`;
-  controls.clockInButton.disabled = Boolean(current.clock_in);
-  controls.clockOutButton.disabled = !current.clock_in || Boolean(current.clock_out);
+  controls.clockInButton.disabled = Boolean(active);
+  controls.clockOutButton.disabled = !active;
 }
 
 function renderEntries() {
-  const sorted = [...entries].sort((a, b) => a.work_date.localeCompare(b.work_date));
+  const sorted = [...entries].sort((a, b) => {
+    const dateOrder = a.work_date.localeCompare(b.work_date);
+    return dateOrder || entryTimeValue(a) - entryTimeValue(b);
+  });
   controls.entriesList.replaceChildren();
 
   if (sorted.length === 0) {
@@ -383,9 +434,10 @@ function renderEntries() {
 function renderSummary() {
   const workEntries = entries.filter((entry) => entry.type === "work");
   const total = workEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
+  const workDays = new Set(workEntries.map((entry) => entry.work_date));
   controls.totalHours.textContent = formatDuration(total);
-  controls.totalDays.textContent = String(workEntries.length);
-  controls.averageHours.textContent = formatDuration(workEntries.length ? Math.round(total / workEntries.length) : 0);
+  controls.totalDays.textContent = String(workDays.size);
+  controls.averageHours.textContent = formatDuration(workDays.size ? Math.round(total / workDays.size) : 0);
 }
 
 function render() {
@@ -414,8 +466,11 @@ async function syncUi() {
 
 async function stamp(kind) {
   const now = new Date();
-  const current = todayEntry();
-  const base = current || {
+  const active = activeTodayEntry();
+
+  if (kind === "out" && !active) return;
+
+  const base = kind === "out" ? active : {
     id: crypto.randomUUID(),
     user_id: userId(),
     work_date: localDate(now),
@@ -432,7 +487,7 @@ async function stamp(kind) {
   await saveEntry(base);
   controls.month.value = localMonth(now);
   await refresh();
-  fillForm(todayEntry());
+  fillForm(activeTodayEntry() || todayEntry());
 }
 
 function csvEscape(value) {
@@ -441,7 +496,10 @@ function csvEscape(value) {
 
 function exportRows() {
   return entries
-    .sort((a, b) => a.work_date.localeCompare(b.work_date))
+    .sort((a, b) => {
+      const dateOrder = a.work_date.localeCompare(b.work_date);
+      return dateOrder || entryTimeValue(a) - entryTimeValue(b);
+    })
     .map((entry) => [
       entry.work_date,
       toTimeInput(entry.clock_in),
@@ -509,6 +567,8 @@ controls.dismissInstallButton.addEventListener("click", () => {
 
 controls.clockInButton.addEventListener("click", () => stamp("in"));
 controls.clockOutButton.addEventListener("click", () => stamp("out"));
+controls.clockIn.addEventListener("blur", () => cleanTimeField(controls.clockIn));
+controls.clockOut.addEventListener("blur", () => cleanTimeField(controls.clockOut));
 
 controls.date.addEventListener("change", () => {
   const existing = entryForDate(controls.date.value);
@@ -526,6 +586,11 @@ controls.date.addEventListener("change", () => {
 
 $("#entryForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!cleanTimeField(controls.clockIn) || !cleanTimeField(controls.clockOut)) {
+    setMessage("Bitte Uhrzeit als HH:MM eingeben.");
+    return;
+  }
+
   const entry = readForm();
   await saveEntry(entry);
   controls.month.value = entry.work_date.slice(0, 7);

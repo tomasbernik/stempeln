@@ -10,9 +10,14 @@ create table if not exists public.stempeln_work_entries (
   type text not null default 'work' check (type in ('work', 'vacation', 'sick', 'holiday')),
   note text not null default '',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (user_id, work_date)
+  updated_at timestamptz not null default now()
 );
+
+alter table public.stempeln_work_entries
+  drop constraint if exists stempeln_work_entries_user_id_work_date_key;
+
+create index if not exists stempeln_work_entries_user_date_idx
+  on public.stempeln_work_entries (user_id, work_date);
 
 alter table public.stempeln_work_entries enable row level security;
 
