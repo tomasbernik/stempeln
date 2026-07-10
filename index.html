@@ -23,6 +23,17 @@
       </header>
 
       <main>
+        <section id="installPrompt" class="panel install-panel" hidden>
+          <div>
+            <p class="eyebrow">App installieren</p>
+            <p id="installText" class="tiny">Stempeln zur Startseite hinzufügen.</p>
+          </div>
+          <div class="install-actions">
+            <button id="installButton" class="primary" type="button">Installieren</button>
+            <button id="dismissInstallButton" class="quiet" type="button" aria-label="Installationshinweis schließen">Später</button>
+          </div>
+        </section>
+
         <section id="loginView" class="panel auth-panel" hidden>
           <p class="eyebrow">Anmeldung</p>
           <h2>Bitte zuerst anmelden</h2>

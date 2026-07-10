@@ -198,6 +198,25 @@ h2 {
   padding: 18px;
 }
 
+.install-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.install-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.install-actions button {
+  min-height: 40px;
+}
+
 .auth-panel {
   display: grid;
   gap: 14px;
@@ -431,8 +450,14 @@ footer {
   }
 
   .section-title,
+  .install-panel,
   footer {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .install-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
   }
 }

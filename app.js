@@ -17,8 +17,12 @@ const TYPE_LABELS = {
   holiday: "Feiertag",
 };
 
+const INSTALL_DISMISSED_KEY = "stempeln-install-dismissed-at";
+const INSTALL_DISMISS_DAYS = 14;
+
 let session = null;
 let entries = [];
+let deferredInstallPrompt = null;
 
 const $ = (selector) => document.querySelector(selector);
 const controls = {
@@ -47,6 +51,10 @@ const controls = {
   averageHours: $("#averageHours"),
   deleteButton: $("#deleteButton"),
   logoutButton: $("#logoutButton"),
+  installPrompt: $("#installPrompt"),
+  installText: $("#installText"),
+  installButton: $("#installButton"),
+  dismissInstallButton: $("#dismissInstallButton"),
 };
 
 function localDate(date = new Date()) {
@@ -114,6 +122,57 @@ function formatDate(date) {
 
 function setMessage(text) {
   controls.appMessage.textContent = text;
+}
+
+function isStandalone() {
+  return window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+}
+
+function isIosSafari() {
+  const ua = window.navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+}
+
+function installDismissedRecently() {
+  const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISSED_KEY) || 0);
+  if (!dismissedAt) return false;
+  return Date.now() - dismissedAt < INSTALL_DISMISS_DAYS * 24 * 60 * 60 * 1000;
+}
+
+function hideInstallPrompt() {
+  controls.installPrompt.hidden = true;
+}
+
+function showInstallPrompt(mode) {
+  if (isStandalone() || installDismissedRecently()) {
+    hideInstallPrompt();
+    return;
+  }
+
+  if (mode === "ios") {
+    controls.installText.textContent = "In Safari teilen und „Zum Home-Bildschirm“ wählen.";
+    controls.installButton.hidden = true;
+  } else {
+    controls.installText.textContent = "Stempeln zur Startseite hinzufügen.";
+    controls.installButton.hidden = false;
+  }
+
+  controls.installPrompt.hidden = false;
+}
+
+function updateInstallPrompt() {
+  if (isStandalone()) {
+    hideInstallPrompt();
+    return;
+  }
+
+  if (deferredInstallPrompt) {
+    showInstallPrompt("prompt");
+    return;
+  }
+
+  if (isIosSafari()) showInstallPrompt("ios");
 }
 
 function demoEntries() {
@@ -427,6 +486,19 @@ $("#syncButton").addEventListener("click", async () => {
   setMessage("Aktualisiert.");
 });
 
+controls.installButton.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  hideInstallPrompt();
+});
+
+controls.dismissInstallButton.addEventListener("click", () => {
+  localStorage.setItem(INSTALL_DISMISSED_KEY, String(Date.now()));
+  hideInstallPrompt();
+});
+
 controls.clockInButton.addEventListener("click", () => stamp("in"));
 controls.clockOutButton.addEventListener("click", () => stamp("out"));
 
@@ -462,7 +534,26 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
 
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateInstallPrompt();
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  hideInstallPrompt();
+});
+
+const standaloneQuery = window.matchMedia("(display-mode: standalone)");
+if (standaloneQuery.addEventListener) {
+  standaloneQuery.addEventListener("change", updateInstallPrompt);
+} else if (standaloneQuery.addListener) {
+  standaloneQuery.addListener(updateInstallPrompt);
+}
+
 controls.month.value = localMonth();
 fillForm();
 await loadSession();
 await syncUi();
+updateInstallPrompt();
