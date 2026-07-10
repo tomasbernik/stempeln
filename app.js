@@ -24,6 +24,7 @@ const $ = (selector) => document.querySelector(selector);
 const controls = {
   loginView: $("#loginView"),
   mainView: $("#mainView"),
+  editorPanel: $(".editor-panel"),
   email: $("#emailInput"),
   loginMessage: $("#loginMessage"),
   appMessage: $("#appMessage"),
@@ -303,7 +304,8 @@ function renderEntries() {
     item.innerHTML = `
       <span class="entry-main">
         <strong>${formatDate(entry.work_date)}</strong>
-        <span>${toTimeInput(entry.clock_in) || "--:--"} - ${toTimeInput(entry.clock_out) || "--:--"} · ${TYPE_LABELS[entry.type] || entry.type}</span>
+        <span>Prichod ${toTimeInput(entry.clock_in) || "--:--"} · Odchod ${toTimeInput(entry.clock_out) || "--:--"}</span>
+        <span>${TYPE_LABELS[entry.type] || entry.type}</span>
       </span>
       <span class="entry-meta">${formatDuration(workedMinutes(entry))}</span>
     `;
@@ -427,7 +429,6 @@ $("#syncButton").addEventListener("click", async () => {
 
 controls.clockInButton.addEventListener("click", () => stamp("in"));
 controls.clockOutButton.addEventListener("click", () => stamp("out"));
-$("#newEntryButton").addEventListener("click", () => fillForm());
 
 $("#entryForm").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -450,6 +451,7 @@ controls.entriesList.addEventListener("click", (event) => {
   const item = event.target.closest(".entry-item");
   if (!item) return;
   fillForm(entries.find((entry) => entry.id === item.dataset.id));
+  controls.editorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 controls.month.addEventListener("change", refresh);

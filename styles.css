@@ -45,13 +45,13 @@ body::before {
 
 .flower-field {
   position: fixed;
-  right: clamp(8px, 6vw, 72px);
-  bottom: clamp(18px, 5vw, 56px);
+  top: clamp(8px, 3vw, 30px);
+  right: clamp(12px, 5vw, 70px);
   z-index: 0;
-  width: min(430px, 74vw);
+  width: min(430px, 62vw);
   height: auto;
   pointer-events: none;
-  opacity: .30;
+  opacity: .48;
 }
 
 button,
@@ -125,6 +125,8 @@ h2 {
 }
 
 .hero {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -193,6 +195,10 @@ h2 {
   gap: 10px;
 }
 
+.list-heading {
+  margin: 16px 0 10px;
+}
+
 .wide,
 .primary {
   border-color: var(--pink);
@@ -230,16 +236,20 @@ h2 {
 
 .stamp-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
 }
 
 .stamp {
+  width: 100%;
+  min-width: 0;
   min-height: 86px;
   border-radius: 28px;
   color: white;
-  font-size: clamp(20px, 4vw, 30px);
+  font-size: clamp(18px, 2.6vw, 28px);
   box-shadow: 0 14px 26px rgba(43, 34, 48, 0.14);
+  white-space: nowrap;
 }
 
 .stamp.in {
@@ -311,6 +321,13 @@ label {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   padding: 14px;
+  min-height: 76px;
+  text-align: left;
+  transition: border-color .16s ease, transform .16s ease;
+}
+
+.entry-item:hover {
+  border-color: var(--pink);
 }
 
 .entry-main strong,
@@ -321,6 +338,7 @@ label {
 .entry-main span {
   color: var(--muted);
   font-weight: 700;
+  margin-top: 3px;
 }
 
 .entry-meta {
@@ -352,12 +370,16 @@ footer {
   }
 
   .stamp-card {
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.85fr);
+    grid-template-columns: minmax(0, 0.85fr) minmax(430px, 1.15fr);
     align-items: center;
   }
 }
 
 @media (max-width: 520px) {
+  .hero {
+    min-height: 116px;
+  }
+
   .horse {
     flex-basis: 86px;
     width: 86px;
@@ -369,10 +391,10 @@ footer {
   }
 
   .flower-field {
-    right: -58px;
-    bottom: 18px;
+    top: 10px;
+    right: -64px;
     width: 300px;
-    opacity: .20;
+    opacity: .42;
   }
 
   .stamp-actions,
