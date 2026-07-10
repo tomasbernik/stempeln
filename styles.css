@@ -134,6 +134,23 @@ h2 {
   margin-bottom: 18px;
 }
 
+.hero-flowers {
+  position: absolute;
+  top: -4px;
+  right: 90px;
+  z-index: 0;
+  width: min(340px, 42vw);
+  height: auto;
+  opacity: .9;
+  pointer-events: none;
+}
+
+.hero > div,
+.horse {
+  position: relative;
+  z-index: 1;
+}
+
 .horse {
   flex: 0 0 132px;
   width: 132px;
@@ -378,6 +395,13 @@ footer {
 @media (max-width: 520px) {
   .hero {
     min-height: 116px;
+  }
+
+  .hero-flowers {
+    top: 4px;
+    right: 54px;
+    width: 210px;
+    opacity: .92;
   }
 
   .horse {

@@ -11,10 +11,10 @@ const supabaseClient = isConfigured && window.supabase
 
 const STORAGE_KEY = "kikin-stempel-demo-v1";
 const TYPE_LABELS = {
-  work: "Praca",
-  vacation: "Dovolenka",
-  sick: "PN",
-  holiday: "Sviatok",
+  work: "Arbeit",
+  vacation: "Urlaub",
+  sick: "Krankenstand",
+  holiday: "Feiertag",
 };
 
 let session = null;
@@ -72,7 +72,7 @@ function daysInMonth(month) {
 
 function toTimeInput(value) {
   if (!value) return "";
-  return new Intl.DateTimeFormat("sk-SK", {
+  return new Intl.DateTimeFormat("de-DE", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -105,7 +105,7 @@ function formatDuration(minutes) {
 }
 
 function formatDate(date) {
-  return new Intl.DateTimeFormat("sk-SK", {
+  return new Intl.DateTimeFormat("de-DE", {
     weekday: "short",
     day: "2-digit",
     month: "2-digit",
@@ -144,7 +144,7 @@ async function loadSession() {
 
 async function signInWithGoogle() {
   if (!supabaseClient) {
-    controls.loginMessage.textContent = "Supabase este nie je nastaveny.";
+    controls.loginMessage.textContent = "Supabase ist noch nicht eingerichtet.";
     return;
   }
 
@@ -157,13 +157,13 @@ async function signInWithGoogle() {
 
 async function signInWithEmail() {
   if (!supabaseClient) {
-    controls.loginMessage.textContent = "Supabase este nie je nastaveny.";
+    controls.loginMessage.textContent = "Supabase ist noch nicht eingerichtet.";
     return;
   }
 
   const email = controls.email.value.trim();
   if (!email) {
-    controls.loginMessage.textContent = "Zadaj email.";
+    controls.loginMessage.textContent = "Bitte E-Mail eingeben.";
     return;
   }
 
@@ -171,7 +171,7 @@ async function signInWithEmail() {
     email,
     options: { emailRedirectTo: window.location.origin + window.location.pathname },
   });
-  controls.loginMessage.textContent = error ? error.message : "Link je poslany.";
+  controls.loginMessage.textContent = error ? error.message : "Der Link wurde gesendet.";
 }
 
 async function signOut() {
@@ -262,14 +262,14 @@ function readForm() {
 
 function renderToday() {
   const current = todayEntry();
-  controls.todayLabel.textContent = new Intl.DateTimeFormat("sk-SK", {
+  controls.todayLabel.textContent = new Intl.DateTimeFormat("de-DE", {
     weekday: "long",
     day: "2-digit",
     month: "long",
   }).format(new Date(`${localDate()}T12:00:00`));
 
   if (!current) {
-    controls.todayStatus.textContent = "Este nezapisane";
+    controls.todayStatus.textContent = "Noch nicht erfasst";
     controls.todayTimes.textContent = "";
     controls.clockInButton.disabled = false;
     controls.clockOutButton.disabled = true;
@@ -278,7 +278,7 @@ function renderToday() {
 
   const inTime = toTimeInput(current.clock_in) || "--:--";
   const outTime = toTimeInput(current.clock_out) || "--:--";
-  controls.todayStatus.textContent = current.clock_out ? "Hotovo" : "V praci";
+  controls.todayStatus.textContent = current.clock_out ? "Fertig" : "Bei der Arbeit";
   controls.todayTimes.textContent = `${inTime} - ${outTime}`;
   controls.clockInButton.disabled = Boolean(current.clock_in);
   controls.clockOutButton.disabled = !current.clock_in || Boolean(current.clock_out);
@@ -291,7 +291,7 @@ function renderEntries() {
   if (sorted.length === 0) {
     const empty = document.createElement("p");
     empty.className = "tiny";
-    empty.textContent = "Tento mesiac je zatial prazdny.";
+    empty.textContent = "Dieser Monat ist noch leer.";
     controls.entriesList.append(empty);
     return;
   }
@@ -304,7 +304,7 @@ function renderEntries() {
     item.innerHTML = `
       <span class="entry-main">
         <strong>${formatDate(entry.work_date)}</strong>
-        <span>Prichod ${toTimeInput(entry.clock_in) || "--:--"} · Odchod ${toTimeInput(entry.clock_out) || "--:--"}</span>
+        <span>Kommen ${toTimeInput(entry.clock_in) || "--:--"} · Gehen ${toTimeInput(entry.clock_out) || "--:--"}</span>
         <span>${TYPE_LABELS[entry.type] || entry.type}</span>
       </span>
       <span class="entry-meta">${formatDuration(workedMinutes(entry))}</span>
@@ -338,7 +338,7 @@ async function syncUi() {
   controls.loginView.hidden = signedIn;
   controls.mainView.hidden = !signedIn;
   controls.logoutButton.hidden = !signedIn || !supabaseClient;
-  setMessage(supabaseClient ? "" : "Demo rezim: dopln Supabase config pre databazu.");
+  setMessage(supabaseClient ? "" : "Demo-Modus: Supabase-Konfiguration für die Datenbank ergänzen.");
   if (signedIn) {
     await refresh();
     fillForm(todayEntry());
@@ -387,7 +387,7 @@ function exportRows() {
 }
 
 function csvContent() {
-  const header = ["Datum", "Prichod", "Odchod", "Prestavka (min)", "Spolu", "Typ", "Poznamka"];
+  const header = ["Datum", "Kommen", "Gehen", "Pause (min)", "Gesamt", "Typ", "Notiz"];
   return [header, ...exportRows()].map((row) => row.map(csvEscape).join(";")).join("\n");
 }
 
@@ -396,27 +396,27 @@ function downloadCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `dochadzka-${controls.month.value}.csv`;
+  link.download = `zeiterfassung-${controls.month.value}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
 
 async function shareCsv() {
-  const file = new File([`\ufeff${csvContent()}`], `dochadzka-${controls.month.value}.csv`, {
+  const file = new File([`\ufeff${csvContent()}`], `zeiterfassung-${controls.month.value}.csv`, {
     type: "text/csv",
   });
 
   if (navigator.canShare?.({ files: [file] })) {
     await navigator.share({
-      title: "Dochadzka",
-      text: `Dochadzka ${controls.month.value}`,
+      title: "Zeiterfassung",
+      text: `Zeiterfassung ${controls.month.value}`,
       files: [file],
     });
     return;
   }
 
   downloadCsv();
-  setMessage("Subor je stiahnuty. V mobile ho vies poslat cez zdielanie suborov.");
+  setMessage("Die Datei wurde heruntergeladen. Am Handy kannst du sie über die Dateifreigabe senden.");
 }
 
 $("#googleLoginButton").addEventListener("click", signInWithGoogle);
@@ -424,7 +424,7 @@ $("#emailLoginButton").addEventListener("click", signInWithEmail);
 $("#logoutButton").addEventListener("click", signOut);
 $("#syncButton").addEventListener("click", async () => {
   await refresh();
-  setMessage("Obnovene.");
+  setMessage("Aktualisiert.");
 });
 
 controls.clockInButton.addEventListener("click", () => stamp("in"));
@@ -437,11 +437,11 @@ $("#entryForm").addEventListener("submit", async (event) => {
   controls.month.value = entry.work_date.slice(0, 7);
   await refresh();
   fillForm(entries.find((item) => item.id === entry.id));
-  setMessage("Ulozene.");
+  setMessage("Gespeichert.");
 });
 
 controls.deleteButton.addEventListener("click", async () => {
-  if (!controls.entryId.value || !confirm("Zmazat tento zaznam?")) return;
+  if (!controls.entryId.value || !confirm("Diesen Eintrag löschen?")) return;
   await deleteEntry(controls.entryId.value);
   await refresh();
   fillForm();

@@ -1,7 +1,7 @@
 {
   "name": "Stempeln",
   "short_name": "Stempeln",
-  "description": "Jednoducha dochadzka s rychlym zapisom prichodu a odchodu.",
+  "description": "Einfache Zeiterfassung mit schnellem Erfassen von Kommen und Gehen.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -1,38 +1,38 @@
 # Kikin Stempel
 
-Jednoducha PWA dochadzka pre mobil. Kika vie otvorit appku, klepnut na `Einstempeln` alebo `Ausstempeln`, manualne opravit den a exportovat mesiac do CSV pre Excel.
+Einfache mobile PWA zur Zeiterfassung. Kika kann die App öffnen, auf `Einstempeln` oder `Ausstempeln` tippen, einen Tag manuell korrigieren und den Monat als CSV für Excel exportieren.
 
-## Co treba nastavit
+## Einrichtung
 
-1. V Supabase mozes pouzit existujuci projekt.
-2. V SQL editore spusti obsah suboru `supabase.sql`; vytvori tabulku `stempeln_work_entries`, takze sa nebude miesat s inymi appkami.
-3. V Supabase zapni Auth provider Google alebo aspon email magic link.
-4. V `Authentication -> URL Configuration` nastav Site URL na GitHub Pages adresu, napriklad `https://tomasbernik.github.io/stempeln/`.
-5. Do Redirect URLs pridaj tu istu adresu.
-6. V `config.js` dopln `SUPABASE_URL` a `SUPABASE_ANON_KEY` z Project Settings -> API.
-7. Pushni repo na GitHub a zapni GitHub Pages z branchu `main`.
+1. In Supabase kannst du ein bestehendes Projekt verwenden.
+2. Führe im SQL-Editor den Inhalt von `supabase.sql` aus; dadurch wird die Tabelle `stempeln_work_entries` erstellt, damit sich die Daten nicht mit anderen Apps mischen.
+3. Aktiviere in Supabase den Auth-Provider Google oder zumindest den E-Mail-Magic-Link.
+4. Setze unter `Authentication -> URL Configuration` die Site URL auf die GitHub-Pages-Adresse, zum Beispiel `https://tomasbernik.github.io/stempeln/`.
+5. Füge dieselbe Adresse zu den Redirect URLs hinzu.
+6. Trage in `config.js` `SUPABASE_URL` und `SUPABASE_ANON_KEY` aus Project Settings -> API ein.
+7. Pushe das Repo zu GitHub und aktiviere GitHub Pages vom Branch `main`.
 
-## Lokalne spustenie
+## Lokal starten
 
-Staticke subory sa daju otvorit cez lokalny server:
+Die statischen Dateien lassen sich über einen lokalen Server öffnen:
 
 ```powershell
 python -m http.server 4187 --bind 127.0.0.1
 ```
 
-Potom otvor `http://127.0.0.1:4187/`.
+Öffne danach `http://127.0.0.1:4187/`.
 
-## Instalacia do mobilu
+## Installation am Handy
 
-Po otvoreni GitHub Pages adresy v mobile pouzi v prehliadaci `Add to Home Screen` / `Pridat na plochu`. Appka ma manifest a service worker, takze sa bude spravat ako instalovatelna webova appka.
+Nach dem Öffnen der GitHub-Pages-Adresse am Handy kannst du im Browser `Add to Home Screen` / `Zum Startbildschirm hinzufügen` verwenden. Die App hat ein Manifest und einen Service Worker, verhält sich also wie eine installierbare Web-App.
 
 ## Export
 
-`Export CSV` stiahne subor za vybrany mesiac. `Zdielat` pouzije mobilne zdielanie suborov, ak ho prehliadac podporuje; inak subor stiahne.
+`Export CSV` lädt die Datei für den ausgewählten Monat herunter. `Teilen` nutzt die mobile Dateifreigabe, wenn der Browser sie unterstützt; sonst wird die Datei heruntergeladen.
 
-## Zdroje
+## Quellen
 
-Implementacia pouziva Supabase JavaScript Auth OAuth redirect a database upsert/select vzor podla oficialnych Supabase docs:
+Die Implementierung verwendet Supabase JavaScript Auth OAuth Redirect sowie das Database-Upsert/Select-Muster aus den offiziellen Supabase-Dokumenten:
 
 - https://supabase.com/docs/reference/javascript/auth-signinwithoauth
 - https://supabase.com/docs/reference/javascript/upsert
