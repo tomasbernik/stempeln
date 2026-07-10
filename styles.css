@@ -10,6 +10,9 @@
   --sun: #ffd166;
   --sky: #88d8ff;
   --violet: #8b5cf6;
+  --horse: #c98b5f;
+  --horse-dark: #5a3a2d;
+  --leaf: #8bd6a7;
   --danger: #d6336c;
   --shadow: 0 18px 40px rgba(214, 51, 108, 0.16);
 }
@@ -36,14 +39,29 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle, rgba(255, 122, 182, 0.20) 0 3px, transparent 4px),
-    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
-    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
-    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
-    radial-gradient(circle, rgba(255, 122, 182, 0.13) 0 5px, transparent 6px),
-    radial-gradient(circle, rgba(114, 230, 177, 0.12) 0 3px, transparent 4px);
-  background-position: 28px 28px, 28px 18px, 38px 28px, 28px 38px, 18px 28px, 94px 74px;
-  background-size: 142px 142px;
+    radial-gradient(circle at 22px 20px, rgba(255, 143, 184, 0.18) 0 5px, transparent 6px),
+    radial-gradient(circle at 30px 20px, rgba(255, 143, 184, 0.16) 0 5px, transparent 6px),
+    radial-gradient(circle at 26px 14px, rgba(255, 111, 158, 0.16) 0 5px, transparent 6px),
+    linear-gradient(rgba(105, 185, 140, 0.14), rgba(105, 185, 140, 0.14));
+  background-position: 32px 42px, 32px 42px, 32px 42px, 58px 68px;
+  background-size: 184px 184px, 184px 184px, 184px 184px, 3px 26px;
+  opacity: .38;
+}
+
+.flower-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .46;
+  overflow: visible;
+}
+
+.tulip {
+  transform-box: fill-box;
+  transform-origin: center bottom;
 }
 
 button,
@@ -110,6 +128,7 @@ h2 {
 
 .app-shell {
   position: relative;
+  z-index: 1;
   width: min(100%, 980px);
   margin: 0 auto;
   padding: max(18px, env(safe-area-inset-top)) 16px max(22px, env(safe-area-inset-bottom));
@@ -126,34 +145,7 @@ h2 {
 .horse {
   flex: 0 0 132px;
   width: 132px;
-  filter: drop-shadow(0 8px 12px rgba(124, 58, 237, 0.18));
-}
-
-.horse-body {
-  fill: var(--violet);
-}
-
-.horse-tail {
-  fill: var(--pink);
-}
-
-.horse-neck {
-  fill: #7c3aed;
-}
-
-.horse-mane {
-  fill: #f97316;
-}
-
-.horse-leg {
-  fill: #4c1d95;
-}
-
-.horse-smile {
-  fill: none;
-  stroke: #2b2230;
-  stroke-linecap: round;
-  stroke-width: 3;
+  filter: drop-shadow(0 9px 12px rgba(90, 58, 45, 0.16));
 }
 
 .eyebrow {
@@ -176,10 +168,49 @@ h2 {
 
 .panel,
 .stamp-card {
+  position: relative;
+  overflow: hidden;
   border: 2px solid rgba(247, 198, 217, 0.8);
   border-radius: 24px;
   background: rgba(255, 254, 250, 0.92);
   box-shadow: var(--shadow);
+}
+
+.panel::after,
+.stamp-card::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  width: 38px;
+  height: 58px;
+  pointer-events: none;
+  opacity: .18;
+  background:
+    radial-gradient(circle at 14px 14px, #ff8fb8 0 9px, transparent 10px),
+    radial-gradient(circle at 24px 14px, #ff8fb8 0 9px, transparent 10px),
+    radial-gradient(circle at 19px 8px, #ff6f9e 0 9px, transparent 10px),
+    linear-gradient(#69b98c, #69b98c),
+    radial-gradient(ellipse at 10px 43px, #8bd6a7 0 12px, transparent 13px),
+    radial-gradient(ellipse at 29px 40px, #8bd6a7 0 12px, transparent 13px);
+  background-position: 0 0, 0 0, 0 0, 18px 24px, 0 30px, 14px 28px;
+  background-size: 38px 58px, 38px 58px, 38px 58px, 3px 30px, 24px 18px, 24px 18px;
+  background-repeat: no-repeat;
+  transform: rotate(-10deg);
+}
+
+.panel > *,
+.stamp-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.stamp-card::after {
+  opacity: .22;
+  right: 22px;
+  top: 16px;
+  bottom: auto;
+  transform: rotate(11deg) scale(.9);
 }
 
 .auth-panel,
