@@ -36,6 +36,7 @@ const controls = {
   email: $("#emailInput"),
   loginMessage: $("#loginMessage"),
   appMessage: $("#appMessage"),
+  userInfo: $("#userInfo"),
   todayLabel: $("#todayLabel"),
   todayStatus: $("#todayStatus"),
   todayTimes: $("#todayTimes"),
@@ -288,6 +289,18 @@ function saveDemoEntries(nextEntries) {
 
 function userId() {
   return session?.user?.id || "demo";
+}
+
+function userDisplayName() {
+  if (!session) return "";
+  const metadata = session.user?.user_metadata || {};
+  return metadata.full_name || metadata.name || session.user?.email || "Demo";
+}
+
+function updateUserInfo() {
+  const name = userDisplayName();
+  controls.userInfo.textContent = name ? `Angemeldet: ${name}` : "";
+  controls.userInfo.hidden = !name;
 }
 
 async function loadSession() {
@@ -548,6 +561,7 @@ async function syncUi() {
   controls.loginView.hidden = signedIn;
   controls.mainView.hidden = !signedIn;
   controls.logoutButton.hidden = !signedIn || !supabaseClient;
+  updateUserInfo();
   setMessage(supabaseClient ? "" : "Demo-Modus: Supabase-Konfiguration für die Datenbank ergänzen.");
   if (signedIn) {
     await refresh();
@@ -631,6 +645,7 @@ function excelDayRows() {
 
 function excelContent() {
   const rows = excelDayRows();
+  const person = userDisplayName();
 
   return `<!doctype html>
 <html>
@@ -646,11 +661,15 @@ function excelContent() {
       .number { width: 72px; mso-number-format: "0,00"; }
       .reason { width: 170px; text-align: left; }
       .weekend td { background: #d8e8bf; }
+      .meta td { border: 0; font-weight: 700; text-align: left; }
       .datum { width: 38px; writing-mode: vertical-rl; transform: rotate(180deg); }
     </style>
   </head>
   <body>
     <table>
+      <tr class="meta"><td colspan="10">Mitarbeiter: ${htmlEscape(person)}</td></tr>
+      <tr class="meta"><td colspan="10">Monat: ${htmlEscape(controls.month.value)}</td></tr>
+      <tr class="meta"><td colspan="10"></td></tr>
       <tr>
         <th rowspan="2" class="datum">Datum</th>
         <th colspan="2">Arbeitszeit</th>
@@ -684,22 +703,33 @@ function downloadExcel() {
   const link = document.createElement("a");
   link.href = url;
   link.download = excelFileName();
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 async function shareExcel() {
+  setMessage("Excel-Datei wird vorbereitet.");
   const file = new File([excelContent()], excelFileName(), {
     type: "application/vnd.ms-excel",
   });
 
-  if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({
-      title: "Zeiterfassung",
-      text: `Zeiterfassung ${controls.month.value}`,
-      files: [file],
-    });
-    return;
+  try {
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        title: "Zeiterfassung",
+        text: `Zeiterfassung ${controls.month.value}`,
+        files: [file],
+      });
+      return;
+    }
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      setMessage("Teilen wurde abgebrochen.");
+      return;
+    }
+    setMessage("Teilen ist nicht verfÃ¼gbar. Die Datei wird heruntergeladen.");
   }
 
   downloadExcel();

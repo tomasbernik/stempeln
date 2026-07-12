@@ -408,6 +408,11 @@ footer {
   margin-top: 16px;
 }
 
+.user-info {
+  margin-right: auto;
+  font-weight: 900;
+}
+
 [hidden] {
   display: none !important;
 }
