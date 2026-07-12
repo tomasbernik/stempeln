@@ -29,6 +29,7 @@ const controls = {
   loginView: $("#loginView"),
   mainView: $("#mainView"),
   editorPanel: $(".editor-panel"),
+  entryMessage: $("#entryMessage"),
   email: $("#emailInput"),
   loginMessage: $("#loginMessage"),
   appMessage: $("#appMessage"),
@@ -151,6 +152,11 @@ function formatDate(date) {
 
 function setMessage(text) {
   controls.appMessage.textContent = text;
+}
+
+function setEntryMessage(text, tone = "") {
+  controls.entryMessage.textContent = text;
+  controls.entryMessage.dataset.tone = tone;
 }
 
 function isStandalone() {
@@ -346,6 +352,17 @@ function fillForm(entry = null) {
   controls.type.value = entry?.type || "work";
   controls.note.value = entry?.note || "";
   controls.deleteButton.hidden = !entry?.id;
+}
+
+function clearForm() {
+  controls.entryId.value = "";
+  controls.date.value = "";
+  controls.clockIn.value = "";
+  controls.clockOut.value = "";
+  controls.breakMinutes.value = "0";
+  controls.type.value = "work";
+  controls.note.value = "";
+  controls.deleteButton.hidden = true;
 }
 
 function entryForDate(date) {
@@ -571,6 +588,7 @@ controls.clockIn.addEventListener("blur", () => cleanTimeField(controls.clockIn)
 controls.clockOut.addEventListener("blur", () => cleanTimeField(controls.clockOut));
 
 controls.date.addEventListener("change", () => {
+  setEntryMessage("");
   const existing = entryForDate(controls.date.value);
   if (existing) {
     fillForm(existing);
@@ -587,7 +605,7 @@ controls.date.addEventListener("change", () => {
 $("#entryForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!cleanTimeField(controls.clockIn) || !cleanTimeField(controls.clockOut)) {
-    setMessage("Bitte Uhrzeit als HH:MM eingeben.");
+    setEntryMessage("Bitte Uhrzeit als HH:MM eingeben.", "error");
     return;
   }
 
@@ -595,8 +613,8 @@ $("#entryForm").addEventListener("submit", async (event) => {
   await saveEntry(entry);
   controls.month.value = entry.work_date.slice(0, 7);
   await refresh();
-  fillForm(entries.find((item) => item.id === entry.id));
-  setMessage("Gespeichert.");
+  clearForm();
+  setEntryMessage("Gespeichert.", "success");
 });
 
 controls.deleteButton.addEventListener("click", async () => {
@@ -604,11 +622,13 @@ controls.deleteButton.addEventListener("click", async () => {
   await deleteEntry(controls.entryId.value);
   await refresh();
   fillForm();
+  setEntryMessage("");
 });
 
 controls.entriesList.addEventListener("click", (event) => {
   const item = event.target.closest(".entry-item");
   if (!item) return;
+  setEntryMessage("");
   fillForm(entries.find((entry) => entry.id === item.dataset.id));
   controls.editorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 });

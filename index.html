@@ -75,11 +75,11 @@
               <div class="two-cols">
                 <label>
                   Kommen
-                  <input id="clockInInput" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="HH:MM">
+                  <input id="clockInInput" type="time" step="60">
                 </label>
                 <label>
                   Gehen
-                  <input id="clockOutInput" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="HH:MM">
+                  <input id="clockOutInput" type="time" step="60">
                 </label>
               </div>
               <div class="two-cols">
@@ -111,6 +111,7 @@
                 <button class="primary" type="submit">Speichern</button>
                 <button id="deleteButton" class="danger" type="button" hidden>Löschen</button>
               </div>
+              <p id="entryMessage" class="tiny form-message" aria-live="polite"></p>
             </form>
           </section>
 

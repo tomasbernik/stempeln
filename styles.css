@@ -312,6 +312,18 @@ h2 {
   gap: 12px;
 }
 
+.form-message {
+  min-height: 18px;
+}
+
+.form-message[data-tone="success"] {
+  color: #12805c;
+}
+
+.form-message[data-tone="error"] {
+  color: var(--danger);
+}
+
 label {
   display: grid;
   gap: 7px;
