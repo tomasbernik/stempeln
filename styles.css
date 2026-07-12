@@ -68,6 +68,8 @@ select {
 }
 
 button {
+  max-width: 100%;
+  min-width: 0;
   min-height: 46px;
   background: white;
   color: var(--ink);
@@ -481,5 +483,10 @@ footer {
   .install-actions {
     display: grid;
     grid-template-columns: 1fr auto;
+  }
+
+  .form-actions button,
+  .export-actions button {
+    width: 100%;
   }
 }

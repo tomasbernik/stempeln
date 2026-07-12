@@ -697,6 +697,10 @@ function excelFileName() {
   return `zeiterfassung-${controls.month.value}.xls`;
 }
 
+function shareFileName() {
+  return `zeiterfassung-${controls.month.value}.html`;
+}
+
 function downloadExcel() {
   const blob = new Blob([excelContent()], { type: "application/vnd.ms-excel;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -710,9 +714,9 @@ function downloadExcel() {
 }
 
 async function shareExcel() {
-  setMessage("Excel-Datei wird vorbereitet.");
-  const file = new File([excelContent()], excelFileName(), {
-    type: "application/vnd.ms-excel",
+  setMessage("Datei fÃ¼r E-Mail wird vorbereitet.");
+  const file = new File([excelContent()], shareFileName(), {
+    type: "text/html",
   });
 
   try {
@@ -726,10 +730,10 @@ async function shareExcel() {
     }
   } catch (error) {
     if (error?.name === "AbortError") {
-      setMessage("Teilen wurde abgebrochen.");
+      setMessage("E-Mail wurde abgebrochen.");
       return;
     }
-    setMessage("Teilen ist nicht verfÃ¼gbar. Die Datei wird heruntergeladen.");
+    setMessage("E-Mail-Freigabe ist nicht verfÃ¼gbar. Die Datei wird heruntergeladen.");
   }
 
   downloadExcel();
