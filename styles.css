@@ -334,7 +334,7 @@ label {
 
 .summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 14px;
 }
@@ -361,7 +361,12 @@ label {
 .summary strong {
   display: block;
   margin-top: 8px;
-  font-size: 28px;
+  font-size: 24px;
+}
+
+.target-setting {
+  max-width: 180px;
+  margin-bottom: 14px;
 }
 
 .entry-item {

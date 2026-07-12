@@ -98,7 +98,7 @@
                   <select id="typeInput">
                     <option value="work" selected>Arbeit</option>
                     <option value="vacation">Urlaub</option>
-                    <option value="sick">Krankenstand</option>
+                    <option value="sick">Krank</option>
                     <option value="holiday">Feiertag</option>
                   </select>
                 </label>
@@ -130,6 +130,10 @@
                 <strong id="totalHours">0:00</strong>
               </div>
               <div>
+                <span>Saldo bis gestern</span>
+                <strong id="overtimeBalance">0:00</strong>
+              </div>
+              <div>
                 <span>Tage</span>
                 <strong id="totalDays">0</strong>
               </div>
@@ -139,8 +143,13 @@
               </div>
             </div>
 
+            <label class="target-setting">
+              Soll/Tag
+              <input id="dailyTargetInput" type="time" step="60" value="03:15">
+            </label>
+
             <div class="export-actions">
-              <button id="exportCsvButton" type="button">Export CSV</button>
+              <button id="exportCsvButton" type="button">Export Excel</button>
               <button id="shareButton" type="button">Teilen</button>
             </div>
 

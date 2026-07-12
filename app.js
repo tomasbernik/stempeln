@@ -10,12 +10,15 @@ const supabaseClient = isConfigured && window.supabase
   : null;
 
 const STORAGE_KEY = "kikin-stempel-demo-v1";
+const DAILY_TARGET_KEY = "stempeln-daily-target-minutes";
+const DEFAULT_DAILY_TARGET_MINUTES = 195;
 const TYPE_LABELS = {
   work: "Arbeit",
   vacation: "Urlaub",
-  sick: "Krankenstand",
+  sick: "Krank",
   holiday: "Feiertag",
 };
+const COUNTED_HOUR_TYPES = new Set(["work", "sick"]);
 
 const INSTALL_DISMISSED_KEY = "stempeln-install-dismissed-at";
 const INSTALL_DISMISS_DAYS = 14;
@@ -48,8 +51,10 @@ const controls = {
   month: $("#monthInput"),
   entriesList: $("#entriesList"),
   totalHours: $("#totalHours"),
+  overtimeBalance: $("#overtimeBalance"),
   totalDays: $("#totalDays"),
   averageHours: $("#averageHours"),
+  dailyTarget: $("#dailyTargetInput"),
   deleteButton: $("#deleteButton"),
   logoutButton: $("#logoutButton"),
   installPrompt: $("#installPrompt"),
@@ -130,8 +135,19 @@ function minutesFromIso(value) {
   return date.getHours() * 60 + date.getMinutes();
 }
 
+function minutesFromTimeValue(value) {
+  const normalized = normalizeTimeInput(value);
+  if (!normalized) return 0;
+  const [hours, minutes] = normalized.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function timeValueFromMinutes(minutes) {
+  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+}
+
 function workedMinutes(entry) {
-  if (entry.type !== "work" || !entry.clock_in || !entry.clock_out) return 0;
+  if (!COUNTED_HOUR_TYPES.has(entry.type) || !entry.clock_in || !entry.clock_out) return 0;
   let out = minutesFromIso(entry.clock_out);
   const into = minutesFromIso(entry.clock_in);
   if (out < into) out += 24 * 60;
@@ -140,6 +156,58 @@ function workedMinutes(entry) {
 
 function formatDuration(minutes) {
   return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`;
+}
+
+function formatDecimalHours(minutes) {
+  return (minutes / 60).toFixed(2).replace(".", ",");
+}
+
+function formatSignedDuration(minutes) {
+  const sign = minutes > 0 ? "+" : minutes < 0 ? "-" : "";
+  return `${sign}${formatDuration(Math.abs(minutes))}`;
+}
+
+function selectedMonthRangeUntilToday() {
+  const month = controls.month.value;
+  const start = dateFromMonth(month, 1);
+  const monthEnd = dateFromMonth(month, daysInMonth(month));
+  const today = localDate();
+  const yesterday = new Date(`${today}T12:00:00`);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const previousDay = localDate(yesterday);
+
+  if (month === localMonth()) return { start, end: previousDay >= start ? previousDay : "" };
+  return { start, end: month < localMonth() ? monthEnd : "" };
+}
+
+function isWeekday(date) {
+  const day = new Date(`${date}T12:00:00`).getDay();
+  return day >= 1 && day <= 5;
+}
+
+function workdaysUntil(dateStart, dateEnd) {
+  if (!dateEnd) return 0;
+  let count = 0;
+  const cursor = new Date(`${dateStart}T12:00:00`);
+  const end = new Date(`${dateEnd}T12:00:00`);
+
+  while (cursor <= end) {
+    if (isWeekday(localDate(cursor))) count += 1;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return count;
+}
+
+function dailyTargetMinutes() {
+  return Number(localStorage.getItem(DAILY_TARGET_KEY) || DEFAULT_DAILY_TARGET_MINUTES);
+}
+
+function saveDailyTarget() {
+  const minutes = minutesFromTimeValue(controls.dailyTarget.value) || DEFAULT_DAILY_TARGET_MINUTES;
+  localStorage.setItem(DAILY_TARGET_KEY, String(minutes));
+  controls.dailyTarget.value = timeValueFromMinutes(minutes);
+  renderSummary();
 }
 
 function formatDate(date) {
@@ -449,10 +517,16 @@ function renderEntries() {
 }
 
 function renderSummary() {
-  const workEntries = entries.filter((entry) => entry.type === "work");
-  const total = workEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
-  const workDays = new Set(workEntries.map((entry) => entry.work_date));
-  controls.totalHours.textContent = formatDuration(total);
+  const countedEntries = entries.filter((entry) => COUNTED_HOUR_TYPES.has(entry.type));
+  const total = countedEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
+  const workDays = new Set(countedEntries.map((entry) => entry.work_date));
+  const { start, end } = selectedMonthRangeUntilToday();
+  const expected = workdaysUntil(start, end) * dailyTargetMinutes();
+  const currentTotal = countedEntries
+    .filter((entry) => entry.work_date >= start && entry.work_date <= end)
+    .reduce((sum, entry) => sum + workedMinutes(entry), 0);
+  controls.totalHours.textContent = `${formatDuration(total)} (${formatDecimalHours(total)})`;
+  controls.overtimeBalance.textContent = formatSignedDuration(currentTotal - expected);
   controls.totalDays.textContent = String(workDays.size);
   controls.averageHours.textContent = formatDuration(workDays.size ? Math.round(total / workDays.size) : 0);
 }
@@ -507,45 +581,116 @@ async function stamp(kind) {
   fillForm(activeTodayEntry() || todayEntry());
 }
 
-function csvEscape(value) {
-  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+function htmlEscape(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
-function exportRows() {
-  return entries
-    .sort((a, b) => {
-      const dateOrder = a.work_date.localeCompare(b.work_date);
-      return dateOrder || entryTimeValue(a) - entryTimeValue(b);
-    })
-    .map((entry) => [
-      entry.work_date,
-      toTimeInput(entry.clock_in),
-      toTimeInput(entry.clock_out),
-      entry.break_minutes,
-      formatDuration(workedMinutes(entry)),
-      TYPE_LABELS[entry.type] || entry.type,
-      entry.note,
-    ]);
+function exportReason(dayEntries) {
+  const values = dayEntries
+    .map((entry) => entry.note || (entry.type === "work" ? "" : TYPE_LABELS[entry.type] || entry.type))
+    .filter(Boolean);
+  return [...new Set(values)].join(", ");
 }
 
-function csvContent() {
-  const header = ["Datum", "Kommen", "Gehen", "Pause (min)", "Gesamt", "Typ", "Notiz"];
-  return [header, ...exportRows()].map((row) => row.map(csvEscape).join(";")).join("\n");
+function excelCell(value, className = "") {
+  return `<td${className ? ` class="${className}"` : ""}>${htmlEscape(value)}</td>`;
 }
 
-function downloadCsv() {
-  const blob = new Blob([`\ufeff${csvContent()}`], { type: "text/csv;charset=utf-8" });
+function excelDayRows() {
+  const month = controls.month.value;
+  const dayCount = daysInMonth(month);
+  const rows = [];
+
+  for (let day = 1; day <= dayCount; day += 1) {
+    const date = dateFromMonth(month, day);
+    const dayEntries = entries
+      .filter((entry) => entry.work_date === date)
+      .sort((a, b) => entryTimeValue(a) - entryTimeValue(b));
+    const intervals = dayEntries.slice(0, 3);
+    const cells = [excelCell(day, "day")];
+
+    for (let index = 0; index < 3; index += 1) {
+      const entry = intervals[index];
+      cells.push(excelCell(toTimeInput(entry?.clock_in), "time"));
+      cells.push(excelCell(toTimeInput(entry?.clock_out), "time"));
+    }
+
+    const total = dayEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
+    cells.push(excelCell(formatDecimalHours(total), "number"));
+    cells.push(excelCell("", "number"));
+    cells.push(excelCell(exportReason(dayEntries), "reason"));
+    rows.push(`<tr${isWeekday(date) ? "" : ' class="weekend"'}>${cells.join("")}</tr>`);
+  }
+
+  return rows.join("");
+}
+
+function excelContent() {
+  const rows = excelDayRows();
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; }
+      th, td { border: 1px solid #000; padding: 2px 6px; height: 17px; }
+      th { font-weight: 700; text-align: center; vertical-align: middle; }
+      td { text-align: center; }
+      .day { width: 38px; }
+      .time { width: 60px; mso-number-format: "\\@"; }
+      .number { width: 72px; mso-number-format: "0,00"; }
+      .reason { width: 170px; text-align: left; }
+      .weekend td { background: #d8e8bf; }
+      .datum { width: 38px; writing-mode: vertical-rl; transform: rotate(180deg); }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th rowspan="2" class="datum">Datum</th>
+        <th colspan="2">Arbeitszeit</th>
+        <th colspan="2">Arbeitszeit</th>
+        <th colspan="2">Arbeitszeit</th>
+        <th rowspan="2">Stunden<br>gesamt</th>
+        <th rowspan="2">davon<br>TZ+VZ</th>
+        <th rowspan="2">Grund / Einsatzort</th>
+      </tr>
+      <tr>
+        <th>von</th>
+        <th>bis</th>
+        <th>von</th>
+        <th>bis</th>
+        <th>von</th>
+        <th>bis</th>
+      </tr>
+      ${rows}
+    </table>
+  </body>
+</html>`;
+}
+
+function excelFileName() {
+  return `zeiterfassung-${controls.month.value}.xls`;
+}
+
+function downloadExcel() {
+  const blob = new Blob([excelContent()], { type: "application/vnd.ms-excel;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `zeiterfassung-${controls.month.value}.csv`;
+  link.download = excelFileName();
   link.click();
   URL.revokeObjectURL(url);
 }
 
-async function shareCsv() {
-  const file = new File([`\ufeff${csvContent()}`], `zeiterfassung-${controls.month.value}.csv`, {
-    type: "text/csv",
+async function shareExcel() {
+  const file = new File([excelContent()], excelFileName(), {
+    type: "application/vnd.ms-excel",
   });
 
   if (navigator.canShare?.({ files: [file] })) {
@@ -557,7 +702,7 @@ async function shareCsv() {
     return;
   }
 
-  downloadCsv();
+  downloadExcel();
   setMessage("Die Datei wurde heruntergeladen. Am Handy kannst du sie über die Dateifreigabe senden.");
 }
 
@@ -634,8 +779,12 @@ controls.entriesList.addEventListener("click", (event) => {
 });
 
 controls.month.addEventListener("change", refresh);
-$("#exportCsvButton").addEventListener("click", downloadCsv);
-$("#shareButton").addEventListener("click", shareCsv);
+controls.dailyTarget.addEventListener("blur", () => {
+  if (cleanTimeField(controls.dailyTarget)) saveDailyTarget();
+});
+controls.dailyTarget.addEventListener("change", saveDailyTarget);
+$("#exportCsvButton").addEventListener("click", downloadExcel);
+$("#shareButton").addEventListener("click", shareExcel);
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
@@ -660,6 +809,7 @@ if (standaloneQuery.addEventListener) {
 }
 
 controls.month.value = localMonth();
+controls.dailyTarget.value = timeValueFromMinutes(dailyTargetMinutes());
 fillForm();
 await loadSession();
 await syncUi();
