@@ -1,4 +1,4 @@
-const CACHE_NAME = "kikin-stempel-v18-local-neon-sdk";
+const CACHE_NAME = "kikin-stempel-v19-auth-session";
 const ASSETS = [
   "./",
   "./index.html",

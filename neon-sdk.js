@@ -4,10 +4,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __typeError = (msg) => {
-  throw TypeError(msg);
-};
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __esm = (fn, res, err) => function __init() {
   if (err) throw err[0];
   try {
@@ -44,11 +40,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 
 // ../cigapp/node_modules/.pnpm/tslib@2.8.1/node_modules/tslib/tslib.es6.mjs
 var tslib_es6_exports = {};
@@ -602,16 +593,16 @@ var require_PostgrestBuilder = __commonJS({
     var PostgrestError_1 = tslib_1.__importDefault(require_PostgrestError());
     var PostgrestBuilder2 = class {
       constructor(builder) {
-        var _a3, _b2;
+        var _a2, _b;
         this.shouldThrowOnError = false;
         this.method = builder.method;
         this.url = builder.url;
         this.headers = new Headers(builder.headers);
         this.schema = builder.schema;
         this.body = builder.body;
-        this.shouldThrowOnError = (_a3 = builder.shouldThrowOnError) !== null && _a3 !== void 0 ? _a3 : false;
+        this.shouldThrowOnError = (_a2 = builder.shouldThrowOnError) !== null && _a2 !== void 0 ? _a2 : false;
         this.signal = builder.signal;
-        this.isMaybeSingle = (_b2 = builder.isMaybeSingle) !== null && _b2 !== void 0 ? _b2 : false;
+        this.isMaybeSingle = (_b = builder.isMaybeSingle) !== null && _b !== void 0 ? _b : false;
         if (builder.fetch) {
           this.fetch = builder.fetch;
         } else {
@@ -653,7 +644,7 @@ var require_PostgrestBuilder = __commonJS({
           body: JSON.stringify(this.body),
           signal: this.signal
         }).then(async (res2) => {
-          var _a3, _b2, _c, _d;
+          var _a2, _b, _c, _d;
           let error48 = null;
           let data = null;
           let count = null;
@@ -665,13 +656,13 @@ var require_PostgrestBuilder = __commonJS({
               if (body === "") {
               } else if (this.headers.get("Accept") === "text/csv") {
                 data = body;
-              } else if (this.headers.get("Accept") && ((_a3 = this.headers.get("Accept")) === null || _a3 === void 0 ? void 0 : _a3.includes("application/vnd.pgrst.plan+text"))) {
+              } else if (this.headers.get("Accept") && ((_a2 = this.headers.get("Accept")) === null || _a2 === void 0 ? void 0 : _a2.includes("application/vnd.pgrst.plan+text"))) {
                 data = body;
               } else {
                 data = JSON.parse(body);
               }
             }
-            const countHeader = (_b2 = this.headers.get("Prefer")) === null || _b2 === void 0 ? void 0 : _b2.match(/count=(exact|planned|estimated)/);
+            const countHeader = (_b = this.headers.get("Prefer")) === null || _b === void 0 ? void 0 : _b.match(/count=(exact|planned|estimated)/);
             const contentRange = (_c = res2.headers.get("content-range")) === null || _c === void 0 ? void 0 : _c.split("/");
             if (countHeader && contentRange && contentRange.length > 1) {
               count = parseInt(contentRange[1]);
@@ -735,11 +726,11 @@ var require_PostgrestBuilder = __commonJS({
         });
         if (!this.shouldThrowOnError) {
           res = res.catch((fetchError) => {
-            var _a3, _b2, _c;
+            var _a2, _b, _c;
             return {
               error: {
-                message: `${(_a3 = fetchError === null || fetchError === void 0 ? void 0 : fetchError.name) !== null && _a3 !== void 0 ? _a3 : "FetchError"}: ${fetchError === null || fetchError === void 0 ? void 0 : fetchError.message}`,
-                details: `${(_b2 = fetchError === null || fetchError === void 0 ? void 0 : fetchError.stack) !== null && _b2 !== void 0 ? _b2 : ""}`,
+                message: `${(_a2 = fetchError === null || fetchError === void 0 ? void 0 : fetchError.name) !== null && _a2 !== void 0 ? _a2 : "FetchError"}: ${fetchError === null || fetchError === void 0 ? void 0 : fetchError.message}`,
+                details: `${(_b = fetchError === null || fetchError === void 0 ? void 0 : fetchError.stack) !== null && _b !== void 0 ? _b : ""}`,
                 hint: "",
                 code: `${(_c = fetchError === null || fetchError === void 0 ? void 0 : fetchError.code) !== null && _c !== void 0 ? _c : ""}`
               },
@@ -958,7 +949,7 @@ var require_PostgrestTransformBuilder = __commonJS({
        * or `"json"`
        */
       explain({ analyze = false, verbose = false, settings = false, buffers = false, wal = false, format = "text" } = {}) {
-        var _a3;
+        var _a2;
         const options = [
           analyze ? "analyze" : null,
           verbose ? "verbose" : null,
@@ -966,7 +957,7 @@ var require_PostgrestTransformBuilder = __commonJS({
           buffers ? "buffers" : null,
           wal ? "wal" : null
         ].filter(Boolean).join("|");
-        const forMediatype = (_a3 = this.headers.get("Accept")) !== null && _a3 !== void 0 ? _a3 : "application/json";
+        const forMediatype = (_a2 = this.headers.get("Accept")) !== null && _a2 !== void 0 ? _a2 : "application/json";
         this.headers.set("Accept", `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`);
         if (format === "json") {
           return this;
@@ -1460,7 +1451,7 @@ var require_PostgrestQueryBuilder = __commonJS({
        * inserts.
        */
       insert(values, { count, defaultToNull = true } = {}) {
-        var _a3;
+        var _a2;
         const method = "POST";
         if (count) {
           this.headers.append("Prefer", `count=${count}`);
@@ -1481,7 +1472,7 @@ var require_PostgrestQueryBuilder = __commonJS({
           headers: this.headers,
           schema: this.schema,
           body: values,
-          fetch: (_a3 = this.fetch) !== null && _a3 !== void 0 ? _a3 : fetch
+          fetch: (_a2 = this.fetch) !== null && _a2 !== void 0 ? _a2 : fetch
         });
       }
       /**
@@ -1523,7 +1514,7 @@ var require_PostgrestQueryBuilder = __commonJS({
        * `ignoreDuplicates: false`. This also only applies when doing bulk upserts.
        */
       upsert(values, { onConflict, ignoreDuplicates = false, count, defaultToNull = true } = {}) {
-        var _a3;
+        var _a2;
         const method = "POST";
         this.headers.append("Prefer", `resolution=${ignoreDuplicates ? "ignore" : "merge"}-duplicates`);
         if (onConflict !== void 0)
@@ -1547,7 +1538,7 @@ var require_PostgrestQueryBuilder = __commonJS({
           headers: this.headers,
           schema: this.schema,
           body: values,
-          fetch: (_a3 = this.fetch) !== null && _a3 !== void 0 ? _a3 : fetch
+          fetch: (_a2 = this.fetch) !== null && _a2 !== void 0 ? _a2 : fetch
         });
       }
       /**
@@ -1572,7 +1563,7 @@ var require_PostgrestQueryBuilder = __commonJS({
        * numbers.
        */
       update(values, { count } = {}) {
-        var _a3;
+        var _a2;
         const method = "PATCH";
         if (count) {
           this.headers.append("Prefer", `count=${count}`);
@@ -1583,7 +1574,7 @@ var require_PostgrestQueryBuilder = __commonJS({
           headers: this.headers,
           schema: this.schema,
           body: values,
-          fetch: (_a3 = this.fetch) !== null && _a3 !== void 0 ? _a3 : fetch
+          fetch: (_a2 = this.fetch) !== null && _a2 !== void 0 ? _a2 : fetch
         });
       }
       /**
@@ -1606,7 +1597,7 @@ var require_PostgrestQueryBuilder = __commonJS({
        * numbers.
        */
       delete({ count } = {}) {
-        var _a3;
+        var _a2;
         const method = "DELETE";
         if (count) {
           this.headers.append("Prefer", `count=${count}`);
@@ -1616,7 +1607,7 @@ var require_PostgrestQueryBuilder = __commonJS({
           url: this.url,
           headers: this.headers,
           schema: this.schema,
-          fetch: (_a3 = this.fetch) !== null && _a3 !== void 0 ? _a3 : fetch
+          fetch: (_a2 = this.fetch) !== null && _a2 !== void 0 ? _a2 : fetch
         });
       }
     };
@@ -1700,7 +1691,7 @@ var require_PostgrestClient = __commonJS({
        * numbers.
        */
       rpc(fn, args = {}, { head = false, get = false, count } = {}) {
-        var _a3;
+        var _a2;
         let method;
         const url2 = new URL(`${this.url}/rpc/${fn}`);
         let body;
@@ -1723,7 +1714,7 @@ var require_PostgrestClient = __commonJS({
           headers,
           schema: this.schemaName,
           body,
-          fetch: (_a3 = this.fetch) !== null && _a3 !== void 0 ? _a3 : fetch
+          fetch: (_a2 = this.fetch) !== null && _a2 !== void 0 ? _a2 : fetch
         });
       }
     };
@@ -2136,7 +2127,7 @@ var getItemAsync = async (storage, key) => {
   }
   try {
     return JSON.parse(value);
-  } catch (_a3) {
+  } catch (_a2) {
     return value;
   }
 };
@@ -2222,8 +2213,8 @@ function generatePKCEVerifier() {
   return Array.from(array2, dec2hex).join("");
 }
 async function sha256(randomString2) {
-  const encoder2 = new TextEncoder();
-  const encodedData = encoder2.encode(randomString2);
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(randomString2);
   const hash2 = await crypto.subtle.digest("SHA-256", encodedData);
   const bytes = new Uint8Array(hash2);
   return Array.from(bytes).map((c) => String.fromCharCode(c)).join("");
@@ -2347,7 +2338,7 @@ function deepClone(obj) {
 var _getErrorMessage = (err) => err.msg || err.message || err.error_description || err.error || JSON.stringify(err);
 var NETWORK_ERROR_CODES = [502, 503, 504];
 async function handleError(error48) {
-  var _a3;
+  var _a2;
   if (!looksLikeFetchResponse(error48)) {
     throw new AuthRetryableFetchError(_getErrorMessage(error48), 0);
   }
@@ -2372,7 +2363,7 @@ async function handleError(error48) {
       throw new AuthWeakPasswordError(_getErrorMessage(data), error48.status, data.weak_password.reasons);
     }
   } else if (errorCode === "weak_password") {
-    throw new AuthWeakPasswordError(_getErrorMessage(data), error48.status, ((_a3 = data.weak_password) === null || _a3 === void 0 ? void 0 : _a3.reasons) || []);
+    throw new AuthWeakPasswordError(_getErrorMessage(data), error48.status, ((_a2 = data.weak_password) === null || _a2 === void 0 ? void 0 : _a2.reasons) || []);
   } else if (errorCode === "session_not_found") {
     throw new AuthSessionMissingError();
   }
@@ -2388,7 +2379,7 @@ var _getRequestParams = (method, options, parameters, body) => {
   return Object.assign(Object.assign({}, params), parameters);
 };
 async function _request(fetcher, method, url2, options) {
-  var _a3;
+  var _a2;
   const headers = Object.assign({}, options === null || options === void 0 ? void 0 : options.headers);
   if (!headers[API_VERSION_HEADER_NAME]) {
     headers[API_VERSION_HEADER_NAME] = API_VERSIONS["2024-01-01"].name;
@@ -2396,7 +2387,7 @@ async function _request(fetcher, method, url2, options) {
   if (options === null || options === void 0 ? void 0 : options.jwt) {
     headers["Authorization"] = `Bearer ${options.jwt}`;
   }
-  const qs = (_a3 = options === null || options === void 0 ? void 0 : options.query) !== null && _a3 !== void 0 ? _a3 : {};
+  const qs = (_a2 = options === null || options === void 0 ? void 0 : options.query) !== null && _a2 !== void 0 ? _a2 : {};
   if (options === null || options === void 0 ? void 0 : options.redirectTo) {
     qs["redirect_to"] = options.redirectTo;
   }
@@ -2429,7 +2420,7 @@ async function _handleRequest(fetcher, method, url2, options, parameters, body) 
   }
 }
 function _sessionResponse(data) {
-  var _a3;
+  var _a2;
   let session = null;
   if (hasSession(data)) {
     session = Object.assign({}, data);
@@ -2437,7 +2428,7 @@ function _sessionResponse(data) {
       session.expires_at = expiresAt(data.expires_in);
     }
   }
-  const user = (_a3 = data.user) !== null && _a3 !== void 0 ? _a3 : data;
+  const user = (_a2 = data.user) !== null && _a2 !== void 0 ? _a2 : data;
   return { data: { session, user }, error: null };
 }
 function _sessionResponsePassword(data) {
@@ -2448,8 +2439,8 @@ function _sessionResponsePassword(data) {
   return response;
 }
 function _userResponse(data) {
-  var _a3;
-  const user = (_a3 = data.user) !== null && _a3 !== void 0 ? _a3 : data;
+  var _a2;
+  const user = (_a2 = data.user) !== null && _a2 !== void 0 ? _a2 : data;
   return { data: { user }, error: null };
 }
 function _ssoResponse(data) {
@@ -2605,14 +2596,14 @@ var GoTrueAdminApi = class {
    * @param params An object which supports `page` and `perPage` as numbers, to alter the paginated results.
    */
   async listUsers(params) {
-    var _a3, _b2, _c, _d, _e, _f, _g;
+    var _a2, _b, _c, _d, _e, _f, _g;
     try {
       const pagination = { nextPage: null, lastPage: 0, total: 0 };
       const response = await _request(this.fetch, "GET", `${this.url}/admin/users`, {
         headers: this.headers,
         noResolveJson: true,
         query: {
-          page: (_b2 = (_a3 = params === null || params === void 0 ? void 0 : params.page) === null || _a3 === void 0 ? void 0 : _a3.toString()) !== null && _b2 !== void 0 ? _b2 : "",
+          page: (_b = (_a2 = params === null || params === void 0 ? void 0 : params.page) === null || _a2 === void 0 ? void 0 : _a2.toString()) !== null && _b !== void 0 ? _b : "",
           per_page: (_d = (_c = params === null || params === void 0 ? void 0 : params.perPage) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : ""
         },
         xform: _noResolveJsonResponse
@@ -2746,14 +2737,14 @@ var GoTrueAdminApi = class {
    * This function should only be called on a server. Never expose your `service_role` key in the browser.
    */
   async _listOAuthClients(params) {
-    var _a3, _b2, _c, _d, _e, _f, _g;
+    var _a2, _b, _c, _d, _e, _f, _g;
     try {
       const pagination = { nextPage: null, lastPage: 0, total: 0 };
       const response = await _request(this.fetch, "GET", `${this.url}/admin/oauth/clients`, {
         headers: this.headers,
         noResolveJson: true,
         query: {
-          page: (_b2 = (_a3 = params === null || params === void 0 ? void 0 : params.page) === null || _a3 === void 0 ? void 0 : _a3.toString()) !== null && _b2 !== void 0 ? _b2 : "",
+          page: (_b = (_a2 = params === null || params === void 0 ? void 0 : params.page) === null || _a2 === void 0 ? void 0 : _a2.toString()) !== null && _b !== void 0 ? _b : "",
           per_page: (_d = (_c = params === null || params === void 0 ? void 0 : params.perPage) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : ""
         },
         xform: _noResolveJsonResponse
@@ -3006,7 +2997,7 @@ function toHex(value) {
   return "0x" + hex3;
 }
 function createSiweMessage(parameters) {
-  var _a3;
+  var _a2;
   const { chainId, domain: domain2, expirationTime, issuedAt = /* @__PURE__ */ new Date(), nonce, notBefore, requestId, resources, scheme, uri, version: version7 } = parameters;
   {
     if (!Number.isInteger(chainId))
@@ -3019,7 +3010,7 @@ function createSiweMessage(parameters) {
       throw new Error(`@supabase/auth-js: Invalid SIWE message field "uri". URI must be provided.`);
     if (version7 !== "1")
       throw new Error(`@supabase/auth-js: Invalid SIWE message field "version". Version must be '1'. Provided value: ${version7}`);
-    if ((_a3 = parameters.statement) === null || _a3 === void 0 ? void 0 : _a3.includes("\n"))
+    if ((_a2 = parameters.statement) === null || _a2 === void 0 ? void 0 : _a2.includes("\n"))
       throw new Error(`@supabase/auth-js: Invalid SIWE message field "statement". Statement must not include '\\n'. Provided value: ${parameters.statement}`);
   }
   const address = getAddress(parameters.address);
@@ -3064,10 +3055,10 @@ init_tslib_es6();
 // ../cigapp/node_modules/.pnpm/@supabase+auth-js@2.79.0/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
 var WebAuthnError = class extends Error {
   constructor({ message, code, cause, name: name4 }) {
-    var _a3;
+    var _a2;
     super(message, { cause });
     this.__isWebAuthnError = true;
-    this.name = (_a3 = name4 !== null && name4 !== void 0 ? name4 : cause instanceof Error ? cause.name : void 0) !== null && _a3 !== void 0 ? _a3 : "Unknown Error";
+    this.name = (_a2 = name4 !== null && name4 !== void 0 ? name4 : cause instanceof Error ? cause.name : void 0) !== null && _a2 !== void 0 ? _a2 : "Unknown Error";
     this.code = code;
   }
 };
@@ -3083,7 +3074,7 @@ var WebAuthnUnknownError = class extends WebAuthnError {
   }
 };
 function identifyRegistrationError({ error: error48, options }) {
-  var _a3, _b2, _c;
+  var _a2, _b, _c;
   const { publicKey } = options;
   if (!publicKey) {
     throw Error("options was missing required publicKey property");
@@ -3097,7 +3088,7 @@ function identifyRegistrationError({ error: error48, options }) {
       });
     }
   } else if (error48.name === "ConstraintError") {
-    if (((_a3 = publicKey.authenticatorSelection) === null || _a3 === void 0 ? void 0 : _a3.requireResidentKey) === true) {
+    if (((_a2 = publicKey.authenticatorSelection) === null || _a2 === void 0 ? void 0 : _a2.requireResidentKey) === true) {
       return new WebAuthnError({
         message: "Discoverable credentials were required but no available authenticator supported it",
         code: "ERROR_AUTHENTICATOR_MISSING_DISCOVERABLE_CREDENTIAL_SUPPORT",
@@ -3105,7 +3096,7 @@ function identifyRegistrationError({ error: error48, options }) {
       });
     } else if (
       // @ts-ignore: `mediation` doesn't yet exist on CredentialCreationOptions but it's possible as of Sept 2024
-      options.mediation === "conditional" && ((_b2 = publicKey.authenticatorSelection) === null || _b2 === void 0 ? void 0 : _b2.userVerification) === "required"
+      options.mediation === "conditional" && ((_b = publicKey.authenticatorSelection) === null || _b === void 0 ? void 0 : _b.userVerification) === "required"
     ) {
       return new WebAuthnError({
         message: "User verification was required during automatic registration but it could not be performed",
@@ -3326,7 +3317,7 @@ function deserializeCredentialRequestOptions(options) {
   return result;
 }
 function serializeCredentialCreationResponse(credential) {
-  var _a3;
+  var _a2;
   if ("toJSON" in credential && typeof credential.toJSON === "function") {
     return credential.toJSON();
   }
@@ -3341,11 +3332,11 @@ function serializeCredentialCreationResponse(credential) {
     type: "public-key",
     clientExtensionResults: credential.getClientExtensionResults(),
     // Convert null to undefined and cast to AuthenticatorAttachment type
-    authenticatorAttachment: (_a3 = credentialWithAttachment.authenticatorAttachment) !== null && _a3 !== void 0 ? _a3 : void 0
+    authenticatorAttachment: (_a2 = credentialWithAttachment.authenticatorAttachment) !== null && _a2 !== void 0 ? _a2 : void 0
   };
 }
 function serializeCredentialRequestResponse(credential) {
-  var _a3;
+  var _a2;
   if ("toJSON" in credential && typeof credential.toJSON === "function") {
     return credential.toJSON();
   }
@@ -3365,7 +3356,7 @@ function serializeCredentialRequestResponse(credential) {
     type: "public-key",
     clientExtensionResults,
     // Convert null to undefined and cast to AuthenticatorAttachment type
-    authenticatorAttachment: (_a3 = credentialWithAttachment.authenticatorAttachment) !== null && _a3 !== void 0 ? _a3 : void 0
+    authenticatorAttachment: (_a2 = credentialWithAttachment.authenticatorAttachment) !== null && _a2 !== void 0 ? _a2 : void 0
   };
 }
 function isValidDomain(hostname3) {
@@ -3375,8 +3366,8 @@ function isValidDomain(hostname3) {
   );
 }
 function browserSupportsWebAuthn() {
-  var _a3, _b2;
-  return !!(isBrowser() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof ((_a3 = navigator === null || navigator === void 0 ? void 0 : navigator.credentials) === null || _a3 === void 0 ? void 0 : _a3.create) === "function" && typeof ((_b2 = navigator === null || navigator === void 0 ? void 0 : navigator.credentials) === null || _b2 === void 0 ? void 0 : _b2.get) === "function");
+  var _a2, _b;
+  return !!(isBrowser() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof ((_a2 = navigator === null || navigator === void 0 ? void 0 : navigator.credentials) === null || _a2 === void 0 ? void 0 : _a2.create) === "function" && typeof ((_b = navigator === null || navigator === void 0 ? void 0 : navigator.credentials) === null || _b === void 0 ? void 0 : _b.get) === "function");
 }
 async function createCredential(options) {
   try {
@@ -3453,7 +3444,7 @@ var DEFAULT_REQUEST_OPTIONS = {
   hints: ["security-key"]
 };
 function deepMerge(...sources) {
-  const isObject3 = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
+  const isObject2 = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
   const isArrayBufferLike = (val) => val instanceof ArrayBuffer || ArrayBuffer.isView(val);
   const result = {};
   for (const source of sources) {
@@ -3467,9 +3458,9 @@ function deepMerge(...sources) {
         result[key] = value;
       } else if (isArrayBufferLike(value)) {
         result[key] = value;
-      } else if (isObject3(value)) {
+      } else if (isObject2(value)) {
         const existing = result[key];
-        if (isObject3(existing)) {
+        if (isObject2(existing)) {
           result[key] = deepMerge(existing, value);
         } else {
           result[key] = deepMerge(value);
@@ -3704,8 +3695,8 @@ var WebAuthnApi = class {
       });
       if (!factor) {
         await this.client.mfa.listFactors().then((factors) => {
-          var _a3;
-          return (_a3 = factors.data) === null || _a3 === void 0 ? void 0 : _a3.all.find((v) => v.factor_type === "webauthn" && v.friendly_name === friendlyName && v.status !== "unverified");
+          var _a2;
+          return (_a2 = factors.data) === null || _a2 === void 0 ? void 0 : _a2.all.find((v) => v.factor_type === "webauthn" && v.friendly_name === friendlyName && v.status !== "unverified");
         }).then((factor2) => factor2 ? this.client.mfa.unenroll({ factorId: factor2 === null || factor2 === void 0 ? void 0 : factor2.id }) : void 0);
         return { data: null, error: enrollError };
       }
@@ -3765,15 +3756,15 @@ var GoTrueClient = class _GoTrueClient {
    * The JWKS used for verifying asymmetric JWTs
    */
   get jwks() {
-    var _a3, _b2;
-    return (_b2 = (_a3 = GLOBAL_JWKS[this.storageKey]) === null || _a3 === void 0 ? void 0 : _a3.jwks) !== null && _b2 !== void 0 ? _b2 : { keys: [] };
+    var _a2, _b;
+    return (_b = (_a2 = GLOBAL_JWKS[this.storageKey]) === null || _a2 === void 0 ? void 0 : _a2.jwks) !== null && _b !== void 0 ? _b : { keys: [] };
   }
   set jwks(value) {
     GLOBAL_JWKS[this.storageKey] = Object.assign(Object.assign({}, GLOBAL_JWKS[this.storageKey]), { jwks: value });
   }
   get jwks_cached_at() {
-    var _a3, _b2;
-    return (_b2 = (_a3 = GLOBAL_JWKS[this.storageKey]) === null || _a3 === void 0 ? void 0 : _a3.cachedAt) !== null && _b2 !== void 0 ? _b2 : Number.MIN_SAFE_INTEGER;
+    var _a2, _b;
+    return (_b = (_a2 = GLOBAL_JWKS[this.storageKey]) === null || _a2 === void 0 ? void 0 : _a2.cachedAt) !== null && _b !== void 0 ? _b : Number.MIN_SAFE_INTEGER;
   }
   set jwks_cached_at(value) {
     GLOBAL_JWKS[this.storageKey] = Object.assign(Object.assign({}, GLOBAL_JWKS[this.storageKey]), { cachedAt: value });
@@ -3782,7 +3773,7 @@ var GoTrueClient = class _GoTrueClient {
    * Create a new client for use in the browser.
    */
   constructor(options) {
-    var _a3, _b2;
+    var _a2, _b;
     this.userStorage = null;
     this.memoryStorage = null;
     this.stateChangeEmitters = /* @__PURE__ */ new Map();
@@ -3825,7 +3816,7 @@ var GoTrueClient = class _GoTrueClient {
     this.throwOnError = settings.throwOnError;
     if (settings.lock) {
       this.lock = settings.lock;
-    } else if (isBrowser() && ((_a3 = globalThis === null || globalThis === void 0 ? void 0 : globalThis.navigator) === null || _a3 === void 0 ? void 0 : _a3.locks)) {
+    } else if (isBrowser() && ((_a2 = globalThis === null || globalThis === void 0 ? void 0 : globalThis.navigator) === null || _a2 === void 0 ? void 0 : _a2.locks)) {
       this.lock = navigatorLock;
     } else {
       this.lock = lockNoOp;
@@ -3873,7 +3864,7 @@ var GoTrueClient = class _GoTrueClient {
       } catch (e) {
         console.error("Failed to create a new BroadcastChannel, multi-tab state changes will not be available", e);
       }
-      (_b2 = this.broadcastChannel) === null || _b2 === void 0 ? void 0 : _b2.addEventListener("message", async (event) => {
+      (_b = this.broadcastChannel) === null || _b === void 0 ? void 0 : _b.addEventListener("message", async (event) => {
         this._debug("received broadcast notification from other tab or client", event);
         await this._notifyAllSubscribers(event.data.event, event.data.session, false);
       });
@@ -3926,7 +3917,7 @@ var GoTrueClient = class _GoTrueClient {
    *    the whole lifetime of the client
    */
   async _initialize() {
-    var _a3;
+    var _a2;
     try {
       let params = {};
       let callbackUrlType = "none";
@@ -3943,7 +3934,7 @@ var GoTrueClient = class _GoTrueClient {
         if (error48) {
           this._debug("#_initialize()", "error detecting session from URL", error48);
           if (isAuthImplicitGrantRedirectError(error48)) {
-            const errorCode = (_a3 = error48.details) === null || _a3 === void 0 ? void 0 : _a3.code;
+            const errorCode = (_a2 = error48.details) === null || _a2 === void 0 ? void 0 : _a2.code;
             if (errorCode === "identity_already_exists" || errorCode === "identity_not_found" || errorCode === "single_identity_not_deletable") {
               return { error: error48 };
             }
@@ -3983,12 +3974,12 @@ var GoTrueClient = class _GoTrueClient {
    * @returns A session where the is_anonymous claim in the access token JWT set to true
    */
   async signInAnonymously(credentials) {
-    var _a3, _b2, _c;
+    var _a2, _b, _c;
     try {
       const res = await _request(this.fetch, "POST", `${this.url}/signup`, {
         headers: this.headers,
         body: {
-          data: (_b2 = (_a3 = credentials === null || credentials === void 0 ? void 0 : credentials.options) === null || _a3 === void 0 ? void 0 : _a3.data) !== null && _b2 !== void 0 ? _b2 : {},
+          data: (_b = (_a2 = credentials === null || credentials === void 0 ? void 0 : credentials.options) === null || _a2 === void 0 ? void 0 : _a2.data) !== null && _b !== void 0 ? _b : {},
           gotrue_meta_security: { captcha_token: (_c = credentials === null || credentials === void 0 ? void 0 : credentials.options) === null || _c === void 0 ? void 0 : _c.captchaToken }
         },
         xform: _sessionResponse
@@ -4022,7 +4013,7 @@ var GoTrueClient = class _GoTrueClient {
    * @returns A user if the server has "autoconfirm" OFF
    */
   async signUp(credentials) {
-    var _a3, _b2, _c;
+    var _a2, _b, _c;
     try {
       let res;
       if ("email" in credentials) {
@@ -4039,7 +4030,7 @@ var GoTrueClient = class _GoTrueClient {
           body: {
             email: email3,
             password,
-            data: (_a3 = options === null || options === void 0 ? void 0 : options.data) !== null && _a3 !== void 0 ? _a3 : {},
+            data: (_a2 = options === null || options === void 0 ? void 0 : options.data) !== null && _a2 !== void 0 ? _a2 : {},
             gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
             code_challenge: codeChallenge,
             code_challenge_method: codeChallengeMethod
@@ -4053,7 +4044,7 @@ var GoTrueClient = class _GoTrueClient {
           body: {
             phone,
             password,
-            data: (_b2 = options === null || options === void 0 ? void 0 : options.data) !== null && _b2 !== void 0 ? _b2 : {},
+            data: (_b = options === null || options === void 0 ? void 0 : options.data) !== null && _b !== void 0 ? _b : {},
             channel: (_c = options === null || options === void 0 ? void 0 : options.channel) !== null && _c !== void 0 ? _c : "sms",
             gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken }
           },
@@ -4143,10 +4134,10 @@ var GoTrueClient = class _GoTrueClient {
    * This method supports the PKCE flow.
    */
   async signInWithOAuth(credentials) {
-    var _a3, _b2, _c, _d;
+    var _a2, _b, _c, _d;
     return await this._handleProviderSignIn(credentials.provider, {
-      redirectTo: (_a3 = credentials.options) === null || _a3 === void 0 ? void 0 : _a3.redirectTo,
-      scopes: (_b2 = credentials.options) === null || _b2 === void 0 ? void 0 : _b2.scopes,
+      redirectTo: (_a2 = credentials.options) === null || _a2 === void 0 ? void 0 : _a2.redirectTo,
+      scopes: (_b = credentials.options) === null || _b === void 0 ? void 0 : _b.scopes,
       queryParams: (_c = credentials.options) === null || _c === void 0 ? void 0 : _c.queryParams,
       skipBrowserRedirect: (_d = credentials.options) === null || _d === void 0 ? void 0 : _d.skipBrowserRedirect
     });
@@ -4179,7 +4170,7 @@ var GoTrueClient = class _GoTrueClient {
     }
   }
   async signInWithEthereum(credentials) {
-    var _a3, _b2, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
     let message;
     let signature;
     if ("message" in credentials) {
@@ -4203,7 +4194,7 @@ var GoTrueClient = class _GoTrueClient {
           throw new Error(`@supabase/auth-js: No compatible Ethereum wallet interface on the window object (window.ethereum) detected. Make sure the user already has a wallet installed and connected for this app. Prefer passing the wallet interface object directly to signInWithWeb3({ chain: 'ethereum', wallet: resolvedUserWallet }) instead.`);
         }
       }
-      const url2 = new URL((_a3 = options === null || options === void 0 ? void 0 : options.url) !== null && _a3 !== void 0 ? _a3 : window.location.href);
+      const url2 = new URL((_a2 = options === null || options === void 0 ? void 0 : options.url) !== null && _a2 !== void 0 ? _a2 : window.location.href);
       const accounts = await resolvedWallet.request({
         method: "eth_requestAccounts"
       }).then((accs) => accs).catch(() => {
@@ -4213,7 +4204,7 @@ var GoTrueClient = class _GoTrueClient {
         throw new Error(`@supabase/auth-js: No accounts available. Please ensure the wallet is connected.`);
       }
       const address = getAddress(accounts[0]);
-      let chainId = (_b2 = options === null || options === void 0 ? void 0 : options.signInWithEthereum) === null || _b2 === void 0 ? void 0 : _b2.chainId;
+      let chainId = (_b = options === null || options === void 0 ? void 0 : options.signInWithEthereum) === null || _b === void 0 ? void 0 : _b.chainId;
       if (!chainId) {
         const chainIdHex = await resolvedWallet.request({
           method: "eth_chainId"
@@ -4270,7 +4261,7 @@ var GoTrueClient = class _GoTrueClient {
     }
   }
   async signInWithSolana(credentials) {
-    var _a3, _b2, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
     let message;
     let signature;
     if ("message" in credentials) {
@@ -4294,7 +4285,7 @@ var GoTrueClient = class _GoTrueClient {
           throw new Error(`@supabase/auth-js: No compatible Solana wallet interface on the window object (window.solana) detected. Make sure the user already has a wallet installed and connected for this app. Prefer passing the wallet interface object directly to signInWithWeb3({ chain: 'solana', wallet: resolvedUserWallet }) instead.`);
         }
       }
-      const url2 = new URL((_a3 = options === null || options === void 0 ? void 0 : options.url) !== null && _a3 !== void 0 ? _a3 : window.location.href);
+      const url2 = new URL((_a2 = options === null || options === void 0 ? void 0 : options.url) !== null && _a2 !== void 0 ? _a2 : window.location.href);
       if ("signIn" in resolvedWallet && resolvedWallet.signIn) {
         const output = await resolvedWallet.signIn(Object.assign(Object.assign(Object.assign({ issuedAt: (/* @__PURE__ */ new Date()).toISOString() }, options === null || options === void 0 ? void 0 : options.signInWithSolana), {
           // non-overridable properties
@@ -4326,7 +4317,7 @@ var GoTrueClient = class _GoTrueClient {
           ...statement ? ["", statement, ""] : [""],
           "Version: 1",
           `URI: ${url2.href}`,
-          `Issued At: ${(_c = (_b2 = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _b2 === void 0 ? void 0 : _b2.issuedAt) !== null && _c !== void 0 ? _c : (/* @__PURE__ */ new Date()).toISOString()}`,
+          `Issued At: ${(_c = (_b = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _b === void 0 ? void 0 : _b.issuedAt) !== null && _c !== void 0 ? _c : (/* @__PURE__ */ new Date()).toISOString()}`,
           ...((_d = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _d === void 0 ? void 0 : _d.notBefore) ? [`Not Before: ${options.signInWithSolana.notBefore}`] : [],
           ...((_e = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _e === void 0 ? void 0 : _e.expirationTime) ? [`Expiration Time: ${options.signInWithSolana.expirationTime}`] : [],
           ...((_f = options === null || options === void 0 ? void 0 : options.signInWithSolana) === null || _f === void 0 ? void 0 : _f.chainId) ? [`Chain ID: ${options.signInWithSolana.chainId}`] : [],
@@ -4462,7 +4453,7 @@ var GoTrueClient = class _GoTrueClient {
    * This method supports PKCE when an email is passed.
    */
   async signInWithOtp(credentials) {
-    var _a3, _b2, _c, _d, _e;
+    var _a2, _b, _c, _d, _e;
     try {
       if ("email" in credentials) {
         const { email: email3, options } = credentials;
@@ -4476,8 +4467,8 @@ var GoTrueClient = class _GoTrueClient {
           headers: this.headers,
           body: {
             email: email3,
-            data: (_a3 = options === null || options === void 0 ? void 0 : options.data) !== null && _a3 !== void 0 ? _a3 : {},
-            create_user: (_b2 = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _b2 !== void 0 ? _b2 : true,
+            data: (_a2 = options === null || options === void 0 ? void 0 : options.data) !== null && _a2 !== void 0 ? _a2 : {},
+            create_user: (_b = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _b !== void 0 ? _b : true,
             gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
             code_challenge: codeChallenge,
             code_challenge_method: codeChallengeMethod
@@ -4515,13 +4506,13 @@ var GoTrueClient = class _GoTrueClient {
    * Log in a user given a User supplied OTP or TokenHash received through mobile or email.
    */
   async verifyOtp(params) {
-    var _a3, _b2;
+    var _a2, _b;
     try {
       let redirectTo = void 0;
       let captchaToken = void 0;
       if ("options" in params) {
-        redirectTo = (_a3 = params.options) === null || _a3 === void 0 ? void 0 : _a3.redirectTo;
-        captchaToken = (_b2 = params.options) === null || _b2 === void 0 ? void 0 : _b2.captchaToken;
+        redirectTo = (_a2 = params.options) === null || _a2 === void 0 ? void 0 : _a2.redirectTo;
+        captchaToken = (_b = params.options) === null || _b === void 0 ? void 0 : _b.captchaToken;
       }
       const { data, error: error48 } = await _request(this.fetch, "POST", `${this.url}/verify`, {
         headers: this.headers,
@@ -4565,7 +4556,7 @@ var GoTrueClient = class _GoTrueClient {
    * organization's SSO Identity Provider UUID directly instead.
    */
   async signInWithSSO(params) {
-    var _a3, _b2, _c;
+    var _a2, _b, _c;
     try {
       let codeChallenge = null;
       let codeChallengeMethod = null;
@@ -4574,7 +4565,7 @@ var GoTrueClient = class _GoTrueClient {
         [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(this.storage, this.storageKey);
       }
       const result = await _request(this.fetch, "POST", `${this.url}/sso`, {
-        body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, "providerId" in params ? { provider_id: params.providerId } : null), "domain" in params ? { domain: params.domain } : null), { redirect_to: (_b2 = (_a3 = params.options) === null || _a3 === void 0 ? void 0 : _a3.redirectTo) !== null && _b2 !== void 0 ? _b2 : void 0 }), ((_c = params === null || params === void 0 ? void 0 : params.options) === null || _c === void 0 ? void 0 : _c.captchaToken) ? { gotrue_meta_security: { captcha_token: params.options.captchaToken } } : null), { skip_http_redirect: true, code_challenge: codeChallenge, code_challenge_method: codeChallengeMethod }),
+        body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, "providerId" in params ? { provider_id: params.providerId } : null), "domain" in params ? { domain: params.domain } : null), { redirect_to: (_b = (_a2 = params.options) === null || _a2 === void 0 ? void 0 : _a2.redirectTo) !== null && _b !== void 0 ? _b : void 0 }), ((_c = params === null || params === void 0 ? void 0 : params.options) === null || _c === void 0 ? void 0 : _c.captchaToken) ? { gotrue_meta_security: { captcha_token: params.options.captchaToken } } : null), { skip_http_redirect: true, code_challenge: codeChallenge, code_challenge_method: codeChallengeMethod }),
         headers: this.headers,
         xform: _ssoResponse
       });
@@ -4821,17 +4812,17 @@ var GoTrueClient = class _GoTrueClient {
         });
       }
       return await this._useSession(async (result) => {
-        var _a3, _b2, _c;
+        var _a2, _b, _c;
         const { data, error: error48 } = result;
         if (error48) {
           throw error48;
         }
-        if (!((_a3 = data.session) === null || _a3 === void 0 ? void 0 : _a3.access_token) && !this.hasCustomAuthorizationHeader) {
+        if (!((_a2 = data.session) === null || _a2 === void 0 ? void 0 : _a2.access_token) && !this.hasCustomAuthorizationHeader) {
           return { data: { user: null }, error: new AuthSessionMissingError() };
         }
         return await _request(this.fetch, "GET", `${this.url}/user`, {
           headers: this.headers,
-          jwt: (_c = (_b2 = data.session) === null || _b2 === void 0 ? void 0 : _b2.access_token) !== null && _c !== void 0 ? _c : void 0,
+          jwt: (_c = (_b = data.session) === null || _b === void 0 ? void 0 : _b.access_token) !== null && _c !== void 0 ? _c : void 0,
           xform: _userResponse
         });
       });
@@ -4967,13 +4958,13 @@ var GoTrueClient = class _GoTrueClient {
   async _refreshSession(currentSession) {
     try {
       return await this._useSession(async (result) => {
-        var _a3;
+        var _a2;
         if (!currentSession) {
           const { data, error: error49 } = result;
           if (error49) {
             throw error49;
           }
-          currentSession = (_a3 = data.session) !== null && _a3 !== void 0 ? _a3 : void 0;
+          currentSession = (_a2 = data.session) !== null && _a2 !== void 0 ? _a2 : void 0;
         }
         if (!(currentSession === null || currentSession === void 0 ? void 0 : currentSession.refresh_token)) {
           throw new AuthSessionMissingError();
@@ -5104,12 +5095,12 @@ var GoTrueClient = class _GoTrueClient {
   }
   async _signOut({ scope } = { scope: "global" }) {
     return await this._useSession(async (result) => {
-      var _a3;
+      var _a2;
       const { data, error: sessionError } = result;
       if (sessionError) {
         return this._returnResult({ error: sessionError });
       }
-      const accessToken = (_a3 = data.session) === null || _a3 === void 0 ? void 0 : _a3.access_token;
+      const accessToken = (_a2 = data.session) === null || _a2 === void 0 ? void 0 : _a2.access_token;
       if (accessToken) {
         const { error: error48 } = await this.admin.signOut(accessToken, scope);
         if (error48) {
@@ -5147,15 +5138,15 @@ var GoTrueClient = class _GoTrueClient {
   }
   async _emitInitialSession(id) {
     return await this._useSession(async (result) => {
-      var _a3, _b2;
+      var _a2, _b;
       try {
         const { data: { session }, error: error48 } = result;
         if (error48)
           throw error48;
-        await ((_a3 = this.stateChangeEmitters.get(id)) === null || _a3 === void 0 ? void 0 : _a3.callback("INITIAL_SESSION", session));
+        await ((_a2 = this.stateChangeEmitters.get(id)) === null || _a2 === void 0 ? void 0 : _a2.callback("INITIAL_SESSION", session));
         this._debug("INITIAL_SESSION", "callback id", id, "session", session);
       } catch (err) {
-        await ((_b2 = this.stateChangeEmitters.get(id)) === null || _b2 === void 0 ? void 0 : _b2.callback("INITIAL_SESSION", null));
+        await ((_b = this.stateChangeEmitters.get(id)) === null || _b === void 0 ? void 0 : _b.callback("INITIAL_SESSION", null));
         this._debug("INITIAL_SESSION", "callback id", id, "error", err);
         console.error(err);
       }
@@ -5202,12 +5193,12 @@ var GoTrueClient = class _GoTrueClient {
    * Gets all the identities linked to a user.
    */
   async getUserIdentities() {
-    var _a3;
+    var _a2;
     try {
       const { data, error: error48 } = await this.getUser();
       if (error48)
         throw error48;
-      return this._returnResult({ data: { identities: (_a3 = data.user.identities) !== null && _a3 !== void 0 ? _a3 : [] }, error: null });
+      return this._returnResult({ data: { identities: (_a2 = data.user.identities) !== null && _a2 !== void 0 ? _a2 : [] }, error: null });
     } catch (error48) {
       if (isAuthError(error48)) {
         return this._returnResult({ data: null, error: error48 });
@@ -5222,16 +5213,16 @@ var GoTrueClient = class _GoTrueClient {
     return this.linkIdentityOAuth(credentials);
   }
   async linkIdentityOAuth(credentials) {
-    var _a3;
+    var _a2;
     try {
       const { data, error: error48 } = await this._useSession(async (result) => {
-        var _a4, _b2, _c, _d, _e;
+        var _a3, _b, _c, _d, _e;
         const { data: data2, error: error49 } = result;
         if (error49)
           throw error49;
         const url2 = await this._getUrlForProvider(`${this.url}/user/identities/authorize`, credentials.provider, {
-          redirectTo: (_a4 = credentials.options) === null || _a4 === void 0 ? void 0 : _a4.redirectTo,
-          scopes: (_b2 = credentials.options) === null || _b2 === void 0 ? void 0 : _b2.scopes,
+          redirectTo: (_a3 = credentials.options) === null || _a3 === void 0 ? void 0 : _a3.redirectTo,
+          scopes: (_b = credentials.options) === null || _b === void 0 ? void 0 : _b.scopes,
           queryParams: (_c = credentials.options) === null || _c === void 0 ? void 0 : _c.queryParams,
           skipBrowserRedirect: true
         });
@@ -5242,7 +5233,7 @@ var GoTrueClient = class _GoTrueClient {
       });
       if (error48)
         throw error48;
-      if (isBrowser() && !((_a3 = credentials.options) === null || _a3 === void 0 ? void 0 : _a3.skipBrowserRedirect)) {
+      if (isBrowser() && !((_a2 = credentials.options) === null || _a2 === void 0 ? void 0 : _a2.skipBrowserRedirect)) {
         window.location.assign(data === null || data === void 0 ? void 0 : data.url);
       }
       return this._returnResult({
@@ -5258,7 +5249,7 @@ var GoTrueClient = class _GoTrueClient {
   }
   async linkIdentityIdToken(credentials) {
     return await this._useSession(async (result) => {
-      var _a3;
+      var _a2;
       try {
         const { error: sessionError, data: { session } } = result;
         if (sessionError)
@@ -5266,7 +5257,7 @@ var GoTrueClient = class _GoTrueClient {
         const { options, provider, token, access_token, nonce } = credentials;
         const res = await _request(this.fetch, "POST", `${this.url}/token?grant_type=id_token`, {
           headers: this.headers,
-          jwt: (_a3 = session === null || session === void 0 ? void 0 : session.access_token) !== null && _a3 !== void 0 ? _a3 : void 0,
+          jwt: (_a2 = session === null || session === void 0 ? void 0 : session.access_token) !== null && _a2 !== void 0 ? _a2 : void 0,
           body: {
             provider,
             id_token: token,
@@ -5305,14 +5296,14 @@ var GoTrueClient = class _GoTrueClient {
   async unlinkIdentity(identity) {
     try {
       return await this._useSession(async (result) => {
-        var _a3, _b2;
+        var _a2, _b;
         const { data, error: error48 } = result;
         if (error48) {
           throw error48;
         }
         return await _request(this.fetch, "DELETE", `${this.url}/user/identities/${identity.identity_id}`, {
           headers: this.headers,
-          jwt: (_b2 = (_a3 = data.session) === null || _a3 === void 0 ? void 0 : _a3.access_token) !== null && _b2 !== void 0 ? _b2 : void 0
+          jwt: (_b = (_a2 = data.session) === null || _a2 === void 0 ? void 0 : _a2.access_token) !== null && _b !== void 0 ? _b : void 0
         });
       });
     } catch (error48) {
@@ -5377,7 +5368,7 @@ var GoTrueClient = class _GoTrueClient {
    * Note: this method is async to accommodate for AsyncStorage e.g. in React native.
    */
   async _recoverAndRefresh() {
-    var _a3, _b2;
+    var _a2, _b;
     const debugName = "#_recoverAndRefresh()";
     this._debug(debugName, "begin");
     try {
@@ -5388,7 +5379,7 @@ var GoTrueClient = class _GoTrueClient {
           maybeUser = { user: currentSession.user };
           await setItemAsync(this.userStorage, this.storageKey + "-user", maybeUser);
         }
-        currentSession.user = (_a3 = maybeUser === null || maybeUser === void 0 ? void 0 : maybeUser.user) !== null && _a3 !== void 0 ? _a3 : userNotAvailableProxy();
+        currentSession.user = (_a2 = maybeUser === null || maybeUser === void 0 ? void 0 : maybeUser.user) !== null && _a2 !== void 0 ? _a2 : userNotAvailableProxy();
       } else if (currentSession && !currentSession.user) {
         if (!currentSession.user) {
           const separateUser = await getItemAsync(this.storage, this.storageKey + "-user");
@@ -5409,7 +5400,7 @@ var GoTrueClient = class _GoTrueClient {
         }
         return;
       }
-      const expiresWithMargin = ((_b2 = currentSession.expires_at) !== null && _b2 !== void 0 ? _b2 : Infinity) * 1e3 - Date.now() < EXPIRY_MARGIN_MS;
+      const expiresWithMargin = ((_b = currentSession.expires_at) !== null && _b !== void 0 ? _b : Infinity) * 1e3 - Date.now() < EXPIRY_MARGIN_MS;
       this._debug(debugName, `session has${expiresWithMargin ? "" : " not"} expired with margin of ${EXPIRY_MARGIN_MS}s`);
       if (expiresWithMargin) {
         if (this.autoRefreshToken && currentSession.refresh_token) {
@@ -5448,7 +5439,7 @@ var GoTrueClient = class _GoTrueClient {
     }
   }
   async _callRefreshToken(refreshToken) {
-    var _a3, _b2;
+    var _a2, _b;
     if (!refreshToken) {
       throw new AuthSessionMissingError();
     }
@@ -5476,10 +5467,10 @@ var GoTrueClient = class _GoTrueClient {
         if (!isAuthRetryableFetchError(error48)) {
           await this._removeSession();
         }
-        (_a3 = this.refreshingDeferred) === null || _a3 === void 0 ? void 0 : _a3.resolve(result);
+        (_a2 = this.refreshingDeferred) === null || _a2 === void 0 ? void 0 : _a2.resolve(result);
         return result;
       }
-      (_b2 = this.refreshingDeferred) === null || _b2 === void 0 ? void 0 : _b2.reject(error48);
+      (_b = this.refreshingDeferred) === null || _b === void 0 ? void 0 : _b.reject(error48);
       throw error48;
     } finally {
       this.refreshingDeferred = null;
@@ -5752,14 +5743,14 @@ var GoTrueClient = class _GoTrueClient {
   async _unenroll(params) {
     try {
       return await this._useSession(async (result) => {
-        var _a3;
+        var _a2;
         const { data: sessionData, error: sessionError } = result;
         if (sessionError) {
           return this._returnResult({ data: null, error: sessionError });
         }
         return await _request(this.fetch, "DELETE", `${this.url}/factors/${params.factorId}`, {
           headers: this.headers,
-          jwt: (_a3 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a3 === void 0 ? void 0 : _a3.access_token
+          jwt: (_a2 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a2 === void 0 ? void 0 : _a2.access_token
         });
       });
     } catch (error48) {
@@ -5772,7 +5763,7 @@ var GoTrueClient = class _GoTrueClient {
   async _enroll(params) {
     try {
       return await this._useSession(async (result) => {
-        var _a3, _b2;
+        var _a2, _b;
         const { data: sessionData, error: sessionError } = result;
         if (sessionError) {
           return this._returnResult({ data: null, error: sessionError });
@@ -5781,12 +5772,12 @@ var GoTrueClient = class _GoTrueClient {
         const { data, error: error48 } = await _request(this.fetch, "POST", `${this.url}/factors`, {
           body,
           headers: this.headers,
-          jwt: (_a3 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a3 === void 0 ? void 0 : _a3.access_token
+          jwt: (_a2 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a2 === void 0 ? void 0 : _a2.access_token
         });
         if (error48) {
           return this._returnResult({ data: null, error: error48 });
         }
-        if (params.factorType === "totp" && data.type === "totp" && ((_b2 = data === null || data === void 0 ? void 0 : data.totp) === null || _b2 === void 0 ? void 0 : _b2.qr_code)) {
+        if (params.factorType === "totp" && data.type === "totp" && ((_b = data === null || data === void 0 ? void 0 : data.totp) === null || _b === void 0 ? void 0 : _b.qr_code)) {
           data.totp.qr_code = `data:image/svg+xml;utf-8,${data.totp.qr_code}`;
         }
         return this._returnResult({ data, error: null });
@@ -5802,7 +5793,7 @@ var GoTrueClient = class _GoTrueClient {
     return this._acquireLock(-1, async () => {
       try {
         return await this._useSession(async (result) => {
-          var _a3;
+          var _a2;
           const { data: sessionData, error: sessionError } = result;
           if (sessionError) {
             return this._returnResult({ data: null, error: sessionError });
@@ -5813,7 +5804,7 @@ var GoTrueClient = class _GoTrueClient {
           const { data, error: error48 } = await _request(this.fetch, "POST", `${this.url}/factors/${params.factorId}/verify`, {
             body,
             headers: this.headers,
-            jwt: (_a3 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a3 === void 0 ? void 0 : _a3.access_token
+            jwt: (_a2 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a2 === void 0 ? void 0 : _a2.access_token
           });
           if (error48) {
             return this._returnResult({ data: null, error: error48 });
@@ -5834,7 +5825,7 @@ var GoTrueClient = class _GoTrueClient {
     return this._acquireLock(-1, async () => {
       try {
         return await this._useSession(async (result) => {
-          var _a3;
+          var _a2;
           const { data: sessionData, error: sessionError } = result;
           if (sessionError) {
             return this._returnResult({ data: null, error: sessionError });
@@ -5842,7 +5833,7 @@ var GoTrueClient = class _GoTrueClient {
           const response = await _request(this.fetch, "POST", `${this.url}/factors/${params.factorId}/challenge`, {
             body: params,
             headers: this.headers,
-            jwt: (_a3 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a3 === void 0 ? void 0 : _a3.access_token
+            jwt: (_a2 = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a2 === void 0 ? void 0 : _a2.access_token
           });
           if (response.error) {
             return response;
@@ -5892,7 +5883,7 @@ var GoTrueClient = class _GoTrueClient {
    * {@see GoTrueMFAApi#listFactors}
    */
   async _listFactors() {
-    var _a3;
+    var _a2;
     const { data: { user }, error: userError } = await this.getUser();
     if (userError) {
       return { data: null, error: userError };
@@ -5903,7 +5894,7 @@ var GoTrueClient = class _GoTrueClient {
       totp: [],
       webauthn: []
     };
-    for (const factor of (_a3 = user === null || user === void 0 ? void 0 : user.factors) !== null && _a3 !== void 0 ? _a3 : []) {
+    for (const factor of (_a2 = user === null || user === void 0 ? void 0 : user.factors) !== null && _a2 !== void 0 ? _a2 : []) {
       data.all.push(factor);
       if (factor.status === "verified") {
         ;
@@ -5919,7 +5910,7 @@ var GoTrueClient = class _GoTrueClient {
    * {@see GoTrueMFAApi#getAuthenticatorAssuranceLevel}
    */
   async _getAuthenticatorAssuranceLevel() {
-    var _a3, _b2;
+    var _a2, _b;
     const { data: { session }, error: sessionError } = await this.getSession();
     if (sessionError) {
       return this._returnResult({ data: null, error: sessionError });
@@ -5936,7 +5927,7 @@ var GoTrueClient = class _GoTrueClient {
       currentLevel = payload.aal;
     }
     let nextLevel = currentLevel;
-    const verifiedFactors = (_b2 = (_a3 = session.user.factors) === null || _a3 === void 0 ? void 0 : _a3.filter((factor) => factor.status === "verified")) !== null && _b2 !== void 0 ? _b2 : [];
+    const verifiedFactors = (_b = (_a2 = session.user.factors) === null || _a2 === void 0 ? void 0 : _a2.filter((factor) => factor.status === "verified")) !== null && _b !== void 0 ? _b : [];
     if (verifiedFactors.length > 0) {
       nextLevel = "aal2";
     }
@@ -6143,18 +6134,11 @@ GoTrueClient.nextInstanceID = 0;
 // ../cigapp/node_modules/.pnpm/@neondatabase+auth@0.5.0-be_a7328e1da925f1041fd35ec67b7a819f/node_modules/@neondatabase/auth/dist/better-auth-helpers-DlzEQzcv.mjs
 var SESSION_CACHE_TTL_MS = 6e4;
 var CLOCK_SKEW_BUFFER_MS = 1e4;
-var DEFAULT_SESSION_EXPIRY_MS = 36e5;
 var NEON_AUTH_SESSION_VERIFIER_PARAM_NAME = "neon_auth_session_verifier";
 var NEON_AUTH_POPUP_PARAM_NAME = "neon_popup";
 var NEON_AUTH_POPUP_CALLBACK_PARAM_NAME = "neon_popup_callback";
 var NEON_AUTH_POPUP_CALLBACK_ROUTE = "/auth/callback";
 var OAUTH_POPUP_MESSAGE_TYPE = "neon-auth:oauth-complete";
-function toISOString(date5) {
-  if (!date5) return (/* @__PURE__ */ new Date()).toISOString();
-  if (typeof date5 === "string") return date5;
-  if (typeof date5 === "number") return new Date(date5).toISOString();
-  return date5.toISOString();
-}
 var AuthErrorCode = {
   BadJwt: "bad_jwt",
   InvalidCredentials: "invalid_credentials",
@@ -6386,13 +6370,6 @@ var ERROR_DEFINITIONS = {
 function getErrorDefinition(code) {
   return ERROR_DEFINITIONS[code];
 }
-function createAuthError(code, customMessage) {
-  const def = getErrorDefinition(code);
-  const message = customMessage || def.message;
-  const status = def.status;
-  if (status !== 500 && status !== 501 && status !== 503) return new AuthApiError(message, status, def.code);
-  return new AuthError(message, status, def.code);
-}
 var BETTER_AUTH_ERROR_MAP = {
   "INVALID_EMAIL_OR_PASSWORD": AuthErrorCode.InvalidCredentials,
   "INVALID_PASSWORD": AuthErrorCode.InvalidCredentials,
@@ -6518,80 +6495,6 @@ function createNormalizedError(message, targetStatus, code, _originalStatus) {
   if (status !== 500 && status !== 501 && status !== 503) return new AuthApiError(message, status, code);
   return new AuthError(message, status, code);
 }
-function mapBetterAuthSession(betterAuthSession, betterAuthUser) {
-  if (!betterAuthSession || !betterAuthUser) return null;
-  let expiresAt2;
-  if (typeof betterAuthSession.expiresAt === "string") expiresAt2 = Math.floor(new Date(betterAuthSession.expiresAt).getTime() / 1e3);
-  else if (typeof betterAuthSession.expiresAt === "object" && betterAuthSession.expiresAt instanceof Date) expiresAt2 = Math.floor(betterAuthSession.expiresAt.getTime() / 1e3);
-  else expiresAt2 = Math.floor(Date.now() / 1e3) + Math.floor(DEFAULT_SESSION_EXPIRY_MS / 1e3);
-  const now3 = Math.floor(Date.now() / 1e3);
-  const expiresIn = Math.max(0, expiresAt2 - now3);
-  return {
-    access_token: betterAuthSession.token,
-    refresh_token: "",
-    expires_at: expiresAt2,
-    expires_in: expiresIn,
-    token_type: "bearer",
-    user: mapBetterAuthUser(betterAuthUser)
-  };
-}
-function mapBetterAuthUser(betterAuthUser) {
-  const createdAt = toISOString(betterAuthUser.createdAt);
-  const updatedAt = toISOString(betterAuthUser.updatedAt);
-  const userMetadata = {};
-  if (betterAuthUser.name) userMetadata.displayName = betterAuthUser.name;
-  if (betterAuthUser.image) userMetadata.profileImageUrl = betterAuthUser.image;
-  const userRecord = betterAuthUser;
-  for (const key of Object.keys(userRecord)) if (![
-    "id",
-    "email",
-    "emailVerified",
-    "name",
-    "image",
-    "createdAt",
-    "updatedAt"
-  ].includes(key)) userMetadata[key] = userRecord[key];
-  return {
-    id: betterAuthUser.id,
-    email: betterAuthUser.email || "",
-    email_confirmed_at: betterAuthUser.emailVerified ? createdAt : void 0,
-    phone: void 0,
-    confirmed_at: betterAuthUser.emailVerified ? createdAt : void 0,
-    last_sign_in_at: updatedAt,
-    app_metadata: {},
-    user_metadata: userMetadata,
-    identities: [],
-    created_at: createdAt,
-    updated_at: updatedAt,
-    aud: "authenticated",
-    role: "authenticated"
-  };
-}
-function mapBetterAuthIdentity(betterAuthUserIdentityAccount, accountInfoData) {
-  return {
-    id: betterAuthUserIdentityAccount.id,
-    user_id: betterAuthUserIdentityAccount.id,
-    identity_id: betterAuthUserIdentityAccount.accountId,
-    provider: betterAuthUserIdentityAccount.providerId,
-    created_at: toISOString(betterAuthUserIdentityAccount.createdAt),
-    updated_at: toISOString(betterAuthUserIdentityAccount.updatedAt),
-    last_sign_in_at: toISOString(betterAuthUserIdentityAccount.updatedAt),
-    identity_data: accountInfoData ? {
-      provider: betterAuthUserIdentityAccount.providerId,
-      provider_id: betterAuthUserIdentityAccount.accountId,
-      scopes: betterAuthUserIdentityAccount.scopes,
-      email: accountInfoData.data.email,
-      name: accountInfoData.data.user.name,
-      picture: accountInfoData.data.user.picture,
-      email_verified: accountInfoData.data.user.email_verified,
-      ...accountInfoData.data
-    } : {
-      provider: betterAuthUserIdentityAccount.providerId,
-      provider_id: betterAuthUserIdentityAccount.accountId,
-      scopes: betterAuthUserIdentityAccount.scopes
-    }
-  };
-}
 
 // ../cigapp/node_modules/.pnpm/better-auth@1.6.23_pg@8.23._5206a3e0af19314cf0fd49cdecda0e8d/node_modules/better-auth/dist/package.mjs
 var version2 = "1.6.23";
@@ -6603,9 +6506,9 @@ var PACKAGE_VERSION = version2;
 var kBroadcastChannel = /* @__PURE__ */ Symbol.for("better-auth:broadcast-channel");
 var now = () => Math.floor(Date.now() / 1e3);
 var WindowBroadcastChannel = class {
+  listeners = /* @__PURE__ */ new Set();
+  name;
   constructor(name4 = "better-auth.message") {
-    __publicField(this, "listeners", /* @__PURE__ */ new Set());
-    __publicField(this, "name");
     this.name = name4;
   }
   subscribe(listener) {
@@ -6652,7 +6555,7 @@ var listenerQueue = [];
 var lqIndex = 0;
 var batchSeen = null;
 var QUEUE_ITEMS_PER_LISTENER = 4;
-var nanostoresGlobal = globalThis.nanostoresGlobal || (globalThis.nanostoresGlobal = { epoch: 0 });
+var nanostoresGlobal = globalThis.nanostoresGlobal ||= { epoch: 0 };
 var drainQueue = () => {
   let thrown;
   let i;
@@ -6890,9 +6793,7 @@ function withEquality(store, isEqual) {
 // ../cigapp/node_modules/.pnpm/better-auth@1.6.23_pg@8.23._5206a3e0af19314cf0fd49cdecda0e8d/node_modules/better-auth/dist/client/focus-manager.mjs
 var kFocusManager = /* @__PURE__ */ Symbol.for("better-auth:focus-manager");
 var WindowFocusManager = class {
-  constructor() {
-    __publicField(this, "listeners", /* @__PURE__ */ new Set());
-  }
+  listeners = /* @__PURE__ */ new Set();
   subscribe(listener) {
     this.listeners.add(listener);
     return () => {
@@ -6922,10 +6823,8 @@ function getGlobalFocusManager() {
 // ../cigapp/node_modules/.pnpm/better-auth@1.6.23_pg@8.23._5206a3e0af19314cf0fd49cdecda0e8d/node_modules/better-auth/dist/client/online-manager.mjs
 var kOnlineManager = /* @__PURE__ */ Symbol.for("better-auth:online-manager");
 var WindowOnlineManager = class {
-  constructor() {
-    __publicField(this, "listeners", /* @__PURE__ */ new Set());
-    __publicField(this, "isOnline", typeof navigator !== "undefined" ? navigator.onLine : true);
-  }
+  listeners = /* @__PURE__ */ new Set();
+  isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
   subscribe(listener) {
     this.listeners.add(listener);
     return () => {
@@ -7329,28 +7228,22 @@ function hideInternalStackFrames(stack) {
   return lines.join("\n    at ");
 }
 function makeErrorForHideStackFrame(Base, clazz) {
-  var _hiddenStack;
   class HideStackFramesError extends Base {
-    constructor(...args2) {
-      var __super = (...args) => {
-        super(...args);
-        __privateAdd(this, _hiddenStack);
-        return this;
-      };
+    #hiddenStack;
+    constructor(...args) {
       if (isErrorStackTraceLimitWritable()) {
         const limit = Error.stackTraceLimit;
         Error.stackTraceLimit = 0;
-        __super(...args2);
+        super(...args);
         Error.stackTraceLimit = limit;
-      } else __super(...args2);
+      } else super(...args);
       const stack = (/* @__PURE__ */ new Error()).stack;
-      if (stack) __privateSet(this, _hiddenStack, hideInternalStackFrames(stack.replace(/^Error/, this.name)));
+      if (stack) this.#hiddenStack = hideInternalStackFrames(stack.replace(/^Error/, this.name));
     }
     get errorStack() {
-      return __privateGet(this, _hiddenStack);
+      return this.#hiddenStack;
     }
   }
-  _hiddenStack = new WeakMap();
   Object.defineProperty(HideStackFramesError.prototype, "constructor", {
     get() {
       return clazz;
@@ -7771,15 +7664,15 @@ var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp2 = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp2 = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __spreadValues = (a, b) => {
   for (var prop in b || (b = {}))
     if (__hasOwnProp2.call(b, prop))
-      __defNormalProp2(a, prop, b[prop]);
+      __defNormalProp(a, prop, b[prop]);
   if (__getOwnPropSymbols)
     for (var prop of __getOwnPropSymbols(b)) {
       if (__propIsEnum.call(b, prop))
-        __defNormalProp2(a, prop, b[prop]);
+        __defNormalProp(a, prop, b[prop]);
     }
   return a;
 };
@@ -7796,7 +7689,7 @@ var BetterFetchError = class extends Error {
   }
 };
 var initializePlugins = async (url2, options) => {
-  var _a3, _b2, _c, _d, _e, _f;
+  var _a2, _b, _c, _d, _e, _f;
   let opts = options || {};
   const hooks = {
     onRequest: [options == null ? void 0 : options.onRequest],
@@ -7814,11 +7707,11 @@ var initializePlugins = async (url2, options) => {
   }
   for (const plugin of (options == null ? void 0 : options.plugins) || []) {
     if (plugin.init) {
-      const pluginRes = await ((_a3 = plugin.init) == null ? void 0 : _a3.call(plugin, url2.toString(), options));
+      const pluginRes = await ((_a2 = plugin.init) == null ? void 0 : _a2.call(plugin, url2.toString(), options));
       opts = pluginRes.options || opts;
       url2 = pluginRes.url;
     }
-    hooks.onRequest.push((_b2 = plugin.hooks) == null ? void 0 : _b2.onRequest);
+    hooks.onRequest.push((_b = plugin.hooks) == null ? void 0 : _b.onRequest);
     hooks.onResponse.push((_c = plugin.hooks) == null ? void 0 : _c.onResponse);
     hooks.onSuccess.push((_d = plugin.hooks) == null ? void 0 : _d.onSuccess);
     hooks.onError.push((_e = plugin.hooks) == null ? void 0 : _e.onError);
@@ -8043,12 +7936,12 @@ function getBody(options, headers) {
   return JSON.stringify(body);
 }
 function getMethod(url2, options) {
-  var _a3;
+  var _a2;
   if (options == null ? void 0 : options.method) {
     return options.method.toUpperCase();
   }
   if (url2.startsWith("@")) {
-    const pMethod = (_a3 = url2.split("@")[1]) == null ? void 0 : _a3.split("/")[0];
+    const pMethod = (_a2 = url2.split("@")[1]) == null ? void 0 : _a2.split("/")[0];
     if (!methods.includes(pMethod)) {
       return (options == null ? void 0 : options.body) ? "POST" : "GET";
     }
@@ -8090,13 +7983,13 @@ var applySchemaPlugin = (config2) => ({
   name: "Apply Schema",
   version: "1.0.0",
   async init(url2, options) {
-    var _a3, _b2, _c, _d;
-    const schema = ((_b2 = (_a3 = config2.plugins) == null ? void 0 : _a3.find(
+    var _a2, _b, _c, _d;
+    const schema = ((_b = (_a2 = config2.plugins) == null ? void 0 : _a2.find(
       (plugin) => {
         var _a22;
         return ((_a22 = plugin.schema) == null ? void 0 : _a22.config) ? url2.startsWith(plugin.schema.config.baseURL || "") || url2.startsWith(plugin.schema.config.prefix || "") : false;
       }
-    )) == null ? void 0 : _b2.schema) || config2.schema;
+    )) == null ? void 0 : _b.schema) || config2.schema;
     if (schema) {
       let urlKey = url2;
       if ((_c = schema.config) == null ? void 0 : _c.prefix) {
@@ -8259,7 +8152,7 @@ function getURL2(url2, option) {
   return _url2;
 }
 var betterFetch = async (url2, options) => {
-  var _a3, _b2, _c, _d, _e, _f, _g, _h;
+  var _a2, _b, _c, _d, _e, _f, _g, _h;
   const {
     hooks,
     url: __url,
@@ -8267,7 +8160,7 @@ var betterFetch = async (url2, options) => {
   } = await initializePlugins(url2, options);
   const fetch2 = getFetch(opts);
   const controller = new AbortController();
-  const signal = (_a3 = opts.signal) != null ? _a3 : controller.signal;
+  const signal = (_a2 = opts.signal) != null ? _a2 : controller.signal;
   const _url2 = getURL2(__url, opts);
   const headers = await getHeaders(opts);
   const body = getBody(opts, headers);
@@ -8287,7 +8180,7 @@ var betterFetch = async (url2, options) => {
       }
     }
   }
-  if ("pipeTo" in context && typeof context.pipeTo === "function" || typeof ((_b2 = options == null ? void 0 : options.body) == null ? void 0 : _b2.pipe) === "function") {
+  if ("pipeTo" in context && typeof context.pipeTo === "function" || typeof ((_b = options == null ? void 0 : options.body) == null ? void 0 : _b.pipe) === "function") {
     if (!("duplex" in context)) {
       context.duplex = "half";
     }
@@ -9680,10 +9573,10 @@ function $constructor(name4, initializer3, params) {
   }
   Object.defineProperty(Definition, "name", { value: name4 });
   function _(def) {
-    var _a3;
+    var _a2;
     const inst = params?.Parent ? new Definition() : this;
     init(inst, def);
-    (_a3 = inst._zod).deferred ?? (_a3.deferred = []);
+    (_a2 = inst._zod).deferred ?? (_a2.deferred = []);
     for (const fn of inst._zod.deferred) {
       fn();
     }
@@ -10280,8 +10173,8 @@ function aborted(x, startIndex = 0) {
 }
 function prefixIssues(path, issues) {
   return issues.map((iss) => {
-    var _a3;
-    (_a3 = iss).path ?? (_a3.path = []);
+    var _a2;
+    (_a2 = iss).path ?? (_a2.path = []);
     iss.path.unshift(path);
     return iss;
   });
@@ -10466,7 +10359,7 @@ function formatError(error48, mapper = (issue2) => issue2.message) {
 function treeifyError(error48, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
   const processError = (error49, path = []) => {
-    var _a3, _b2;
+    var _a2, _b;
     for (const issue2 of error49.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
         issue2.errors.map((issues) => processError({ issues }, issue2.path));
@@ -10487,11 +10380,11 @@ function treeifyError(error48, mapper = (issue2) => issue2.message) {
           const terminal = i === fullpath.length - 1;
           if (typeof el === "string") {
             curr.properties ?? (curr.properties = {});
-            (_a3 = curr.properties)[el] ?? (_a3[el] = { errors: [] });
+            (_a2 = curr.properties)[el] ?? (_a2[el] = { errors: [] });
             curr = curr.properties[el];
           } else {
             curr.items ?? (curr.items = []);
-            (_b2 = curr.items)[el] ?? (_b2[el] = { errors: [] });
+            (_b = curr.items)[el] ?? (_b[el] = { errors: [] });
             curr = curr.items[el];
           }
           if (terminal) {
@@ -10781,10 +10674,10 @@ var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
 // ../cigapp/node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
-  var _a3;
+  var _a2;
   inst._zod ?? (inst._zod = {});
   inst._zod.def = def;
-  (_a3 = inst._zod).onattach ?? (_a3.onattach = []);
+  (_a2 = inst._zod).onattach ?? (_a2.onattach = []);
 });
 var numericOriginMap = {
   number: "number",
@@ -10850,8 +10743,8 @@ var $ZodCheckGreaterThan = /* @__PURE__ */ $constructor("$ZodCheckGreaterThan", 
 var $ZodCheckMultipleOf = /* @__PURE__ */ $constructor("$ZodCheckMultipleOf", (inst, def) => {
   $ZodCheck.init(inst, def);
   inst._zod.onattach.push((inst2) => {
-    var _a3;
-    (_a3 = inst2._zod.bag).multipleOf ?? (_a3.multipleOf = def.value);
+    var _a2;
+    (_a2 = inst2._zod.bag).multipleOf ?? (_a2.multipleOf = def.value);
   });
   inst._zod.check = (payload) => {
     if (typeof payload.value !== typeof def.value)
@@ -10984,9 +10877,9 @@ var $ZodCheckBigIntFormat = /* @__PURE__ */ $constructor("$ZodCheckBigIntFormat"
   };
 });
 var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, def) => {
-  var _a3;
+  var _a2;
   $ZodCheck.init(inst, def);
-  (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
+  (_a2 = inst._zod.def).when ?? (_a2.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.size !== void 0;
   });
@@ -11012,9 +10905,9 @@ var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, d
   };
 });
 var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, def) => {
-  var _a3;
+  var _a2;
   $ZodCheck.init(inst, def);
-  (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
+  (_a2 = inst._zod.def).when ?? (_a2.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.size !== void 0;
   });
@@ -11040,9 +10933,9 @@ var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, d
   };
 });
 var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (inst, def) => {
-  var _a3;
+  var _a2;
   $ZodCheck.init(inst, def);
-  (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
+  (_a2 = inst._zod.def).when ?? (_a2.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.size !== void 0;
   });
@@ -11070,9 +10963,9 @@ var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (i
   };
 });
 var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (inst, def) => {
-  var _a3;
+  var _a2;
   $ZodCheck.init(inst, def);
-  (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
+  (_a2 = inst._zod.def).when ?? (_a2.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.length !== void 0;
   });
@@ -11099,9 +10992,9 @@ var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (ins
   };
 });
 var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (inst, def) => {
-  var _a3;
+  var _a2;
   $ZodCheck.init(inst, def);
-  (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
+  (_a2 = inst._zod.def).when ?? (_a2.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.length !== void 0;
   });
@@ -11128,9 +11021,9 @@ var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (ins
   };
 });
 var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals", (inst, def) => {
-  var _a3;
+  var _a2;
   $ZodCheck.init(inst, def);
-  (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
+  (_a2 = inst._zod.def).when ?? (_a2.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.length !== void 0;
   });
@@ -11159,7 +11052,7 @@ var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals"
   };
 });
 var $ZodCheckStringFormat = /* @__PURE__ */ $constructor("$ZodCheckStringFormat", (inst, def) => {
-  var _a3, _b2;
+  var _a2, _b;
   $ZodCheck.init(inst, def);
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -11170,7 +11063,7 @@ var $ZodCheckStringFormat = /* @__PURE__ */ $constructor("$ZodCheckStringFormat"
     }
   });
   if (def.pattern)
-    (_a3 = inst._zod).check ?? (_a3.check = (payload) => {
+    (_a2 = inst._zod).check ?? (_a2.check = (payload) => {
       def.pattern.lastIndex = 0;
       if (def.pattern.test(payload.value))
         return;
@@ -11185,7 +11078,7 @@ var $ZodCheckStringFormat = /* @__PURE__ */ $constructor("$ZodCheckStringFormat"
       });
     });
   else
-    (_b2 = inst._zod).check ?? (_b2.check = () => {
+    (_b = inst._zod).check ?? (_b.check = () => {
     });
 });
 var $ZodCheckRegex = /* @__PURE__ */ $constructor("$ZodCheckRegex", (inst, def) => {
@@ -11372,7 +11265,7 @@ var version3 = {
 
 // ../cigapp/node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
-  var _a3;
+  var _a2;
   inst ?? (inst = {});
   inst._zod.def = def;
   inst._zod.bag = inst._zod.bag || {};
@@ -11387,7 +11280,7 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
     }
   }
   if (checks.length === 0) {
-    (_a3 = inst._zod).deferred ?? (_a3.deferred = []);
+    (_a2 = inst._zod).deferred ?? (_a2.deferred = []);
     inst._zod.deferred?.push(() => {
       inst._zod.run = inst._zod.parse;
     });
@@ -12106,13 +11999,13 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     }
     return propValues;
   });
-  const isObject3 = isObject;
+  const isObject2 = isObject;
   const catchall = def.catchall;
   let value;
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
     const input = payload.value;
-    if (!isObject3(input)) {
+    if (!isObject2(input)) {
       payload.issues.push({
         expected: "object",
         code: "invalid_type",
@@ -12210,7 +12103,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
     return (payload, ctx) => fn(shape, payload, ctx);
   };
   let fastpass;
-  const isObject3 = isObject;
+  const isObject2 = isObject;
   const jit = !globalConfig.jitless;
   const allowsEval2 = allowsEval;
   const fastEnabled = jit && allowsEval2.value;
@@ -12219,7 +12112,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
     const input = payload.value;
-    if (!isObject3(input)) {
+    if (!isObject2(input)) {
       payload.issues.push({
         expected: "object",
         code: "invalid_type",
@@ -20030,7 +19923,7 @@ function initializeContext(params) {
   };
 }
 function process2(schema, ctx, _params = { path: [], schemaPath: [] }) {
-  var _a3;
+  var _a2;
   const def = schema._zod.def;
   const seen = ctx.seen.get(schema);
   if (seen) {
@@ -20078,7 +19971,7 @@ function process2(schema, ctx, _params = { path: [], schemaPath: [] }) {
     delete result.schema.default;
   }
   if (ctx.io === "input" && result.schema._prefault)
-    (_a3 = result.schema).default ?? (_a3.default = result.schema._prefault);
+    (_a2 = result.schema).default ?? (_a2.default = result.schema._prefault);
   delete result.schema._prefault;
   const _result = ctx.seen.get(schema);
   return _result.schema;
@@ -22898,13 +22791,11 @@ var zod_default = external_exports;
 
 // ../cigapp/node_modules/.pnpm/@neondatabase+auth@0.5.0-be_a7328e1da925f1041fd35ec67b7a819f/node_modules/@neondatabase/auth/dist/adapter-core-CZ8saNEY.mjs
 var InFlightRequestManager = class {
-  constructor() {
-    /**
-    * Map of request keys to in-flight Promises.
-    * Automatically cleared after Promise resolution (success or error).
-    */
-    __publicField(this, "inFlightRequests", /* @__PURE__ */ new Map());
-  }
+  /**
+  * Map of request keys to in-flight Promises.
+  * Automatically cleared after Promise resolution (success or error).
+  */
+  inFlightRequests = /* @__PURE__ */ new Map();
   /**
   * Execute function with deduplication.
   *
@@ -22984,9 +22875,7 @@ function getJwtExpiration(jwt2) {
   }
 }
 var TokenCache = class {
-  constructor() {
-    __publicField(this, "cache", null);
-  }
+  cache = null;
   /**
   * Get cached data if not expired.
   * Returns null if cache is empty or expired.
@@ -23037,11 +22926,9 @@ var TokenCache = class {
   }
 };
 var SessionCacheManager = class {
-  constructor() {
-    __publicField(this, "cache", new TokenCache());
-    __publicField(this, "lastSessionData", null);
-    __publicField(this, "invalidated", false);
-  }
+  cache = new TokenCache();
+  lastSessionData = null;
+  invalidated = false;
   /**
   * Get cached session if valid and not expired.
   * Returns null if cache is invalid, expired, or doesn't exist.
@@ -23084,9 +22971,7 @@ var SessionCacheManager = class {
   }
 };
 var AnonymousTokenCacheManager = class {
-  constructor() {
-    __publicField(this, "cache", new TokenCache());
-  }
+  cache = new TokenCache();
   /**
   * Get cached anonymous token response if not expired.
   * Returns null if cache is empty or expired.
@@ -23506,12 +23391,12 @@ var supportedBetterAuthClientPlugins = [
   anonymousTokenClient()
 ];
 var NeonAuthAdapterCore = class {
+  betterAuthOptions;
   /**
   * Better Auth adapter implementing the NeonAuthClient interface.
   * See CLAUDE.md for architecture details and API mappings.
   */
   constructor(betterAuthClientOptions) {
-    __publicField(this, "betterAuthOptions");
     const userOnSuccess = betterAuthClientOptions.fetchOptions?.onSuccess;
     const userOnRequest = betterAuthClientOptions.fetchOptions?.onRequest;
     this.betterAuthOptions = {
@@ -23598,193 +23483,11 @@ var NeonAuthAdapterCore = class {
   }
 };
 
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/lib/buffer_utils.js
-var encoder = new TextEncoder();
-var decoder = new TextDecoder();
-var strictDecoder = new TextDecoder("utf-8", { fatal: true });
-var MAX_INT32 = 2 ** 32;
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/util/errors.js
-var JOSEError = class extends Error {
-  constructor(message, options) {
-    super(message, options);
-    __publicField(this, "code", "ERR_JOSE_GENERIC");
-    this.name = this.constructor.name;
-    Error.captureStackTrace?.(this, this.constructor);
-  }
-};
-__publicField(JOSEError, "code", "ERR_JOSE_GENERIC");
-var JWTInvalid = class extends JOSEError {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "code", "ERR_JWT_INVALID");
-  }
-};
-__publicField(JWTInvalid, "code", "ERR_JWT_INVALID");
-var _a2, _b;
-var JWKSMultipleMatchingKeys = class extends (_b = JOSEError, _a2 = Symbol.asyncIterator, _b) {
-  constructor(message = "multiple matching keys found in the JSON Web Key Set", options) {
-    super(message, options);
-    __publicField(this, _a2, async function* () {
-    });
-    __publicField(this, "code", "ERR_JWKS_MULTIPLE_MATCHING_KEYS");
-  }
-};
-__publicField(JWKSMultipleMatchingKeys, "code", "ERR_JWKS_MULTIPLE_MATCHING_KEYS");
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/util/base64url.js
-var base64url_exports = {};
-__export(base64url_exports, {
-  decode: () => decode3,
-  encode: () => encode3
-});
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/lib/base64.js
-function encodeBase64(input) {
-  if (Uint8Array.prototype.toBase64) {
-    return input.toBase64();
-  }
-  const CHUNK_SIZE = 32768;
-  const arr = [];
-  for (let i = 0; i < input.length; i += CHUNK_SIZE) {
-    arr.push(String.fromCharCode.apply(null, input.subarray(i, i + CHUNK_SIZE)));
-  }
-  return btoa(arr.join(""));
-}
-function decodeBase64(encoded) {
-  if (Uint8Array.fromBase64) {
-    return Uint8Array.fromBase64(encoded);
-  }
-  const binary = atob(encoded);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/util/base64url.js
-function decode3(input) {
-  if (Uint8Array.fromBase64) {
-    try {
-      return Uint8Array.fromBase64(typeof input === "string" ? input : decoder.decode(input), {
-        alphabet: "base64url"
-      });
-    } catch (cause) {
-      throw new TypeError("The input to be decoded is not correctly encoded.", { cause });
-    }
-  }
-  let encoded = input;
-  if (encoded instanceof Uint8Array) {
-    encoded = decoder.decode(encoded);
-  }
-  if (encoded.includes("+") || encoded.includes("/")) {
-    throw new TypeError("The input to be decoded is not correctly encoded.");
-  }
-  encoded = encoded.replace(/-/g, "+").replace(/_/g, "/");
-  try {
-    return decodeBase64(encoded);
-  } catch {
-    throw new TypeError("The input to be decoded is not correctly encoded.");
-  }
-}
-function encode3(input) {
-  let unencoded = input;
-  if (typeof unencoded === "string") {
-    unencoded = encoder.encode(unencoded);
-  }
-  if (Uint8Array.prototype.toBase64) {
-    return unencoded.toBase64({ alphabet: "base64url", omitPadding: true });
-  }
-  return encodeBase64(unencoded).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/lib/type_checks.js
-var isObjectLike = (value) => typeof value === "object" && value !== null;
-function isObject2(input) {
-  if (!isObjectLike(input) || Object.prototype.toString.call(input) !== "[object Object]") {
-    return false;
-  }
-  if (Object.getPrototypeOf(input) === null) {
-    return true;
-  }
-  let proto = input;
-  while (Object.getPrototypeOf(proto) !== null) {
-    proto = Object.getPrototypeOf(proto);
-  }
-  return Object.getPrototypeOf(input) === proto;
-}
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/lib/helpers.js
-function parseJoseHeader(b64, ErrorClass, message) {
-  let parsed;
-  try {
-    parsed = JSON.parse(strictDecoder.decode(decode3(b64)));
-  } catch {
-    throw new ErrorClass(message);
-  }
-  if (!isObject2(parsed)) {
-    throw new ErrorClass(message);
-  }
-  return parsed;
-}
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/util/decode_protected_header.js
-function decodeProtectedHeader(token) {
-  let protectedB64u;
-  if (typeof token === "string") {
-    const parts = token.split(".");
-    if (parts.length === 3 || parts.length === 5) {
-      ;
-      [protectedB64u] = parts;
-    }
-  } else if (typeof token === "object" && token) {
-    if ("protected" in token) {
-      protectedB64u = token.protected;
-    } else {
-      throw new TypeError("Token does not contain a Protected Header");
-    }
-  }
-  const invalid = "Invalid Token or Protected Header formatting";
-  if (typeof protectedB64u !== "string" || !protectedB64u) {
-    throw new TypeError(invalid);
-  }
-  return parseJoseHeader(protectedB64u, TypeError, invalid);
-}
-
-// ../cigapp/node_modules/.pnpm/jose@6.2.5/node_modules/jose/dist/webapi/util/decode_jwt.js
-function decodeJwt(jwt2) {
-  if (typeof jwt2 !== "string")
-    throw new JWTInvalid("JWTs must use Compact JWS serialization, JWT must be a string");
-  const { 1: payload, length } = jwt2.split(".");
-  if (length === 5)
-    throw new JWTInvalid("Only JWTs using Compact JWS serialization can be decoded");
-  if (length !== 3)
-    throw new JWTInvalid("Invalid JWT");
-  if (!payload)
-    throw new JWTInvalid("JWTs must contain a payload");
-  let decoded;
-  try {
-    decoded = decode3(payload);
-  } catch {
-    throw new JWTInvalid("Failed to base64url decode the payload");
-  }
-  let result;
-  try {
-    result = JSON.parse(strictDecoder.decode(decoded));
-  } catch {
-    throw new JWTInvalid("Failed to parse the decoded payload as JSON");
-  }
-  if (!isObject2(result))
-    throw new JWTInvalid("Invalid JWT Claims Set");
-  return result;
-}
-
 // ../cigapp/node_modules/.pnpm/@neondatabase+auth@0.5.0-be_a7328e1da925f1041fd35ec67b7a819f/node_modules/@neondatabase/auth/dist/supabase-adapter-CKXlmI3i.mjs
 var BetterAuthVanillaAdapterImpl = class extends NeonAuthAdapterCore {
+  _betterAuth;
   constructor(betterAuthClientOptions) {
     super(betterAuthClientOptions);
-    __publicField(this, "_betterAuth");
     this._betterAuth = createAuthClient(this.betterAuthOptions);
   }
   getBetterAuthInstance() {
@@ -23793,918 +23496,6 @@ var BetterAuthVanillaAdapterImpl = class extends NeonAuthAdapterCore {
 };
 function BetterAuthVanillaAdapter(options) {
   return (url2, fetchOptions) => new BetterAuthVanillaAdapterImpl({
-    baseURL: url2,
-    ...options,
-    fetchOptions: {
-      ...options?.fetchOptions,
-      headers: {
-        ...options?.fetchOptions?.headers,
-        ...fetchOptions?.headers
-      }
-    }
-  });
-}
-function isBetterAuthAPIError(error48) {
-  return error48 !== null && typeof error48 === "object" && "status" in error48 && typeof error48.status === "number";
-}
-var SupabaseAuthAdapterImpl = class extends NeonAuthAdapterCore {
-  constructor(betterAuthClientOptions) {
-    super(betterAuthClientOptions);
-    __publicField(this, "admin");
-    __publicField(this, "mfa");
-    __publicField(this, "oauth");
-    __publicField(this, "_betterAuth");
-    __publicField(this, "_stateChangeEmitters", /* @__PURE__ */ new Map());
-    __publicField(this, "initialize", async () => {
-      try {
-        const session = await this.getSession();
-        if (session.error) throw session.error;
-        return {
-          data: session.data,
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: { session: null },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: { session: null },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "refreshSession", async () => {
-      try {
-        const sessionResult = await this.getSession();
-        if (sessionResult.error) throw sessionResult.error;
-        return {
-          data: {
-            user: sessionResult.data.session?.user ?? null,
-            session: sessionResult.data.session
-          },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "setSession", async () => {
-      return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: createAuthError(AuthErrorCode.NotImplemented, "setSession() is not supported by Better Auth. Use signInWithPassword() instead.")
-      };
-    });
-    __publicField(this, "signUp", async (credentials) => {
-      try {
-        if ("email" in credentials && credentials.email && credentials.password) {
-          const displayName = credentials.options?.data && "displayName" in credentials.options.data && typeof credentials.options.data.displayName === "string" ? credentials.options.data.displayName : "";
-          const result = await this._betterAuth.signUp.email({
-            email: credentials.email,
-            password: credentials.password,
-            name: displayName,
-            callbackURL: credentials.options?.emailRedirectTo,
-            ...credentials.options?.data
-          });
-          if (result.error) throw normalizeBetterAuthError(result.error);
-          const sessionResult = await this.getSession();
-          if (!sessionResult.data.session?.user) throw createAuthError(AuthErrorCode.SessionNotFound, "Failed to retrieve user session");
-          return {
-            data: {
-              user: sessionResult.data.session.user,
-              session: sessionResult.data.session
-            },
-            error: null
-          };
-        } else if ("phone" in credentials && credentials.phone) throw createAuthError(AuthErrorCode.PhoneProviderDisabled, "Phone sign-up not supported");
-        else throw createAuthError(AuthErrorCode.ValidationFailed, "Invalid credentials format");
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "signInAnonymously", async () => {
-      return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: createAuthError(AuthErrorCode.AnonymousProviderDisabled, `Anonymous sign-in is not supported. To allow unauthenticated access with an anonymous JWT, use the allowAnonymous option in your Auth configuration instead.`)
-      };
-    });
-    __publicField(this, "signInWithPassword", async (credentials) => {
-      try {
-        if ("email" in credentials && credentials.email) {
-          const result = await this._betterAuth.signIn.email({
-            email: credentials.email,
-            password: credentials.password
-          });
-          if (result.error) throw normalizeBetterAuthError(result.error);
-          const sessionResult = await this.getSession();
-          if (!sessionResult.data.session?.user) throw createAuthError(AuthErrorCode.SessionNotFound, "Failed to retrieve user session");
-          return {
-            data: {
-              user: sessionResult.data.session.user,
-              session: sessionResult.data.session
-            },
-            error: null
-          };
-        } else if ("phone" in credentials && credentials.phone) throw createAuthError(AuthErrorCode.PhoneProviderDisabled, "Phone sign-in not supported");
-        else throw createAuthError(AuthErrorCode.ValidationFailed, "Invalid credentials format");
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "signInWithOAuth", async (credentials) => {
-      try {
-        const { provider, options } = credentials;
-        await this._betterAuth.signIn.social({
-          provider,
-          scopes: options?.scopes?.split(" "),
-          disableRedirect: options?.skipBrowserRedirect,
-          callbackURL: options?.redirectTo || (globalThis.window === void 0 ? "" : globalThis.location.origin)
-        });
-        return {
-          data: {
-            provider,
-            url: options?.redirectTo || (globalThis.window === void 0 ? "" : globalThis.location.origin)
-          },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            provider: credentials.provider,
-            url: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            provider: credentials.provider,
-            url: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "signInWithOtp", async (credentials) => {
-      try {
-        if ("phone" in credentials) return {
-          data: {
-            user: null,
-            session: null,
-            messageId: void 0
-          },
-          error: createAuthError(AuthErrorCode.PhoneProviderDisabled, "Phone OTP authentication is not supported. Use email-based authentication instead.")
-        };
-        if ("email" in credentials) {
-          await this._betterAuth.emailOtp.sendVerificationOtp({
-            email: credentials.email,
-            type: "sign-in"
-          });
-          return {
-            data: {
-              user: null,
-              session: null,
-              messageId: void 0
-            },
-            error: null
-          };
-        }
-        throw createAuthError(AuthErrorCode.ValidationFailed, "Invalid OTP credentials format");
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null,
-            messageId: void 0
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null,
-            messageId: void 0
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "signInWithIdToken", async (credentials) => {
-      try {
-        const result = await this._betterAuth.signIn.social({
-          provider: credentials.provider,
-          idToken: {
-            token: credentials.token,
-            accessToken: credentials.access_token,
-            nonce: credentials.nonce
-          }
-        });
-        if (result.error) throw normalizeBetterAuthError(result.error);
-        if (!("user" in result.data) || !result.data.user) throw createAuthError(AuthErrorCode.OAuthCallbackFailed, "Failed to sign in with ID token");
-        const session = await this.getSession();
-        if (session.error || !session.data.session) throw session.error || createAuthError(AuthErrorCode.SessionNotFound, "Failed to get session");
-        return {
-          data: {
-            user: session.data.session.user,
-            session: session.data.session
-          },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "signInWithSSO", async (params) => {
-      const attemptedWith = "providerId" in params ? `provider ID: ${params.providerId}` : `domain: ${"domain" in params ? params.domain : "unknown"}`;
-      return {
-        data: null,
-        error: createAuthError(AuthErrorCode.SsoProviderDisabled, `Better Auth does not support enterprise SAML SSO. Attempted with ${attemptedWith}. Use signInWithOAuth() for OAuth providers instead.`)
-      };
-    });
-    __publicField(this, "signInWithWeb3", async (credentials) => {
-      const attemptedChain = credentials.chain;
-      return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: createAuthError(AuthErrorCode.Web3ProviderDisabled, `Better Auth does not support Web3 authentication. Attempted with chain: ${attemptedChain}. Supported: OAuth, email/password, magic link.`)
-      };
-    });
-    __publicField(this, "signOut", async () => {
-      try {
-        const result = await this._betterAuth.signOut();
-        if (result.error) throw normalizeBetterAuthError(result.error);
-        return { error: null };
-      } catch (error48) {
-        if (isAuthError(error48)) return { error: error48 };
-        if (isBetterAuthAPIError(error48)) return { error: normalizeBetterAuthError(error48) };
-        throw error48;
-      }
-    });
-    __publicField(this, "getUser", async () => {
-      try {
-        const sessionResult = await this.getSession();
-        if (sessionResult.error || !sessionResult.data.session) throw sessionResult.error || createAuthError(AuthErrorCode.SessionNotFound, "No user session found");
-        return {
-          data: { user: sessionResult.data.session.user },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: { user: null },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: { user: null },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "getClaims", async (jwtArg) => {
-      try {
-        let jwt2 = jwtArg;
-        if (!jwt2) {
-          const sessionResult = await this.getSession();
-          if (sessionResult.error || !sessionResult.data?.session) throw sessionResult.error || createAuthError(AuthErrorCode.SessionNotFound, "No user session found");
-          jwt2 = sessionResult.data.session.access_token;
-        }
-        if (!jwt2) throw createAuthError(AuthErrorCode.SessionNotFound, "No access token found");
-        if (jwt2.split(".").length !== 3) throw createAuthError(AuthErrorCode.BadJwt, "Invalid token format");
-        return {
-          data: {
-            header: decodeProtectedHeader(jwt2),
-            claims: decodeJwt(jwt2),
-            signature: base64url_exports.decode(jwt2.split(".")[2])
-          },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: null,
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: null,
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "updateUser", async (attributes) => {
-      try {
-        if (attributes.password) throw createAuthError(AuthErrorCode.FeatureNotSupported, "The password cannot be updated through the updateUser method, use the changePassword method instead.");
-        if (attributes.email) throw createAuthError(AuthErrorCode.FeatureNotSupported, "The email cannot be updated through the updateUser method, use the changeEmail method instead.");
-        const result = await this._betterAuth.updateUser({ ...attributes.data });
-        if (result.data?.status) throw createAuthError(AuthErrorCode.InternalError, "Failed to update user");
-        if (result?.error) throw normalizeBetterAuthError(result.error);
-        const updatedSessionResult = await this.getSession({ forceFetch: true });
-        if (!updatedSessionResult.data.session) throw createAuthError(AuthErrorCode.SessionNotFound, "Failed to retrieve updated user");
-        return {
-          data: { user: updatedSessionResult.data.session.user },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: { user: null },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: { user: null },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "getUserIdentities", async () => {
-      try {
-        const sessionResult = await this.getSession();
-        if (sessionResult.error || !sessionResult.data.session) throw sessionResult.error || createAuthError(AuthErrorCode.SessionNotFound, "No user session found");
-        const result = await this._betterAuth.listAccounts();
-        if (!result) throw createAuthError(AuthErrorCode.InternalError, "Failed to list accounts");
-        if (result.error) throw normalizeBetterAuthError(result.error);
-        const identitiesPromises = result.data.map(async (account) => {
-          let accountInfo = null;
-          try {
-            accountInfo = (await this._betterAuth.accountInfo({ query: { accountId: account.accountId } })).data;
-          } catch (error48) {
-            console.warn(`Failed to get account info for ${account.providerId}:`, error48);
-          }
-          return mapBetterAuthIdentity(account, accountInfo ?? null);
-        });
-        return {
-          data: { identities: await Promise.all(identitiesPromises) },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: null,
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: null,
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "linkIdentity", async (credentials) => {
-      const provider = credentials.provider;
-      try {
-        const sessionResult = await this.getSession();
-        if (sessionResult.error || !sessionResult.data.session) throw sessionResult.error || createAuthError(AuthErrorCode.SessionNotFound, "No user session found");
-        if ("token" in credentials) {
-          const result$1 = await this._betterAuth.linkSocial({
-            provider,
-            idToken: {
-              token: credentials.token,
-              accessToken: credentials.access_token,
-              nonce: credentials.nonce
-            }
-          });
-          if (result$1.error) throw normalizeBetterAuthError(result$1.error);
-          return {
-            data: {
-              user: sessionResult.data.session.user,
-              session: sessionResult.data.session,
-              provider,
-              url: result$1.data?.url
-            },
-            error: null
-          };
-        }
-        const callbackURL = credentials.options?.redirectTo || (globalThis.window === void 0 ? "" : globalThis.location.origin);
-        const scopes = credentials.options?.scopes?.split(" ").filter((s) => s.length > 0);
-        const result = await this._betterAuth.linkSocial({
-          provider,
-          callbackURL,
-          errorCallbackURL: callbackURL ? `${callbackURL}?error=linking-failed` : void 0,
-          scopes
-        });
-        if (result.error) throw normalizeBetterAuthError(result.error);
-        return {
-          data: {
-            provider,
-            url: result.data?.url,
-            user: sessionResult.data.session.user,
-            session: sessionResult.data.session
-          },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            provider,
-            url: null,
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            provider,
-            url: null,
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "unlinkIdentity", async (identity) => {
-      try {
-        const sessionResult = await this.getSession();
-        if (sessionResult.error || !sessionResult.data.session) throw sessionResult.error || createAuthError(AuthErrorCode.SessionNotFound, "No user session found");
-        const identities = await this.getUserIdentities();
-        if (identities.error || !identities.data) throw identities.error || createAuthError(AuthErrorCode.InternalError, "Failed to fetch identities");
-        const targetIdentity = identities.data.identities.find((i) => i.id === identity.identity_id);
-        if (!targetIdentity) throw createAuthError(AuthErrorCode.IdentityNotFound, "Identity not found");
-        const providerId = targetIdentity.provider;
-        const accountId = targetIdentity.identity_id;
-        const result = await this._betterAuth.unlinkAccount({
-          providerId,
-          accountId
-        });
-        if (result?.error) throw normalizeBetterAuthError(result.error);
-        const updatedSession = await this.getSession({ forceFetch: true });
-        if (updatedSession.data.session) BETTER_AUTH_METHODS_HOOKS["updateUser"].onSuccess(updatedSession.data.session);
-        return {
-          data: {},
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: null,
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: null,
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "verifyOtp", async (params) => {
-      try {
-        if ("phone" in params && params.phone) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: createAuthError(AuthErrorCode.PhoneProviderDisabled, "Phone OTP verification is not supported. Use email-based authentication instead.")
-        };
-        if ("email" in params && params.type === "magiclink") return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: createAuthError(AuthErrorCode.MagicLinkNotSupported, "Magic link verification is not supported. Use email OTP authentication instead.")
-        };
-        if ("email" in params && params.email) return await this.verifyEmailOtp(params);
-        if ("token_hash" in params && params.token_hash) throw createAuthError(AuthErrorCode.FeatureNotSupported, "Token hash verification not supported");
-        throw createAuthError(AuthErrorCode.ValidationFailed, "Invalid OTP verification parameters");
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "resetPasswordForEmail", async (email3, options) => {
-      try {
-        const result = await this._betterAuth.requestPasswordReset({
-          email: email3,
-          redirectTo: options?.redirectTo || (globalThis.window === void 0 ? "" : globalThis.location.origin)
-        });
-        if (result?.error) throw normalizeBetterAuthError(result.error);
-        return {
-          data: {},
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: null,
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: null,
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "reauthenticate", async () => {
-      try {
-        const newSession = await this.getSession();
-        if (newSession.error || !newSession.data.session) throw newSession.error || createAuthError(AuthErrorCode.SessionNotFound, "No session found");
-        return {
-          data: {
-            user: newSession.data.session?.user || null,
-            session: newSession.data.session
-          },
-          error: null
-        };
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "resend", async (credentials) => {
-      try {
-        if ("email" in credentials) {
-          const { email: email3, type, options } = credentials;
-          if (type === "signup" || type === "email_change") {
-            const result = await this._betterAuth.sendVerificationEmail({
-              email: email3,
-              callbackURL: options?.emailRedirectTo || (globalThis.window === void 0 ? "" : globalThis.location.origin)
-            });
-            if (result?.error) throw normalizeBetterAuthError(result.error);
-            return {
-              data: {
-                user: null,
-                session: null
-              },
-              error: null
-            };
-          }
-          throw createAuthError(AuthErrorCode.ValidationFailed, `Unsupported resend type: ${type}`);
-        }
-        if ("phone" in credentials) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: createAuthError(AuthErrorCode.PhoneProviderDisabled, "SMS resend is not supported. Use email-based authentication instead.")
-        };
-        throw createAuthError(AuthErrorCode.ValidationFailed, "Invalid credentials format");
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            user: null,
-            session: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "exchangeCodeForSession", async (_authCode) => {
-      try {
-        const sessionResult = await this.getSession();
-        if (sessionResult.data.session) return {
-          data: {
-            session: sessionResult.data.session,
-            user: sessionResult.data.session.user
-          },
-          error: null
-        };
-        throw createAuthError(AuthErrorCode.OAuthCallbackFailed, "OAuth callback completed but no session was created. Make sure the OAuth callback has been processed.");
-      } catch (error48) {
-        if (isAuthError(error48)) return {
-          data: {
-            session: null,
-            user: null
-          },
-          error: error48
-        };
-        if (isBetterAuthAPIError(error48)) return {
-          data: {
-            session: null,
-            user: null
-          },
-          error: normalizeBetterAuthError(error48)
-        };
-        throw error48;
-      }
-    });
-    __publicField(this, "onAuthStateChange", (callback) => {
-      const id = crypto.randomUUID();
-      const subscription = {
-        id,
-        callback,
-        unsubscribe: () => {
-          this._stateChangeEmitters.delete(id);
-        }
-      };
-      this._stateChangeEmitters.set(id, subscription);
-      this.emitInitialSession(callback);
-      return { data: { subscription: {
-        id,
-        callback,
-        unsubscribe: subscription.unsubscribe
-      } } };
-    });
-    __publicField(this, "isThrowOnErrorEnabled", () => false);
-    __publicField(this, "startAutoRefresh", async () => {
-    });
-    __publicField(this, "stopAutoRefresh", async () => {
-    });
-    this._betterAuth = createAuthClient(this.betterAuthOptions);
-    this._betterAuth.useSession.subscribe((value) => {
-      if (!value.data?.session || !value.data?.user) {
-        BETTER_AUTH_METHODS_CACHE.clearSessionCache();
-        return;
-      }
-    });
-    getGlobalBroadcastChannel().subscribe((message) => {
-      if (message.clientId === CURRENT_TAB_CLIENT_ID) return;
-      if (message.data && "sessionData" in message.data) {
-        const sessionData = message.data.sessionData;
-        const trigger = message.data.trigger;
-        if (sessionData) BETTER_AUTH_METHODS_CACHE.setCachedSession(sessionData);
-        else BETTER_AUTH_METHODS_CACHE.clearSessionCache();
-        const supabaseSession = sessionData ? mapBetterAuthSession(sessionData.session, sessionData.user) : null;
-        const promises = [...this._stateChangeEmitters.values()].map((subscription) => {
-          try {
-            return Promise.resolve(subscription.callback(trigger, supabaseSession));
-          } catch {
-            return Promise.resolve();
-          }
-        });
-        Promise.allSettled(promises);
-      }
-    });
-  }
-  getBetterAuthInstance() {
-    return this._betterAuth;
-  }
-  async getSession(options) {
-    try {
-      const currentSession = await this._betterAuth.getSession(options?.forceFetch ? { fetchOptions: { headers: { "X-Force-Fetch": "true" } } } : void 0);
-      if (!currentSession.data?.session) return {
-        data: { session: null },
-        error: null
-      };
-      return {
-        data: { session: mapBetterAuthSession(currentSession.data.session, currentSession.data.user) },
-        error: null
-      };
-    } catch (error48) {
-      if (isAuthError(error48)) return {
-        data: { session: null },
-        error: error48
-      };
-      if (isBetterAuthAPIError(error48)) return {
-        data: { session: null },
-        error: normalizeBetterAuthError(error48)
-      };
-      throw error48;
-    }
-  }
-  async verifyEmailOtp(params) {
-    const { type } = params;
-    if (type === "email") {
-      const result = await this._betterAuth.signIn.emailOtp({
-        email: params.email,
-        otp: params.token
-      });
-      if (result.error) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: normalizeBetterAuthError(result.error)
-      };
-      const sessionResult = await this.getSession({ forceFetch: true });
-      if (!sessionResult.data.session) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: createAuthError(AuthErrorCode.SessionNotFound, "Failed to retrieve session after OTP verification. Make sure the magic link callback has been processed.")
-      };
-      return {
-        data: {
-          user: sessionResult.data.session.user,
-          session: sessionResult.data.session
-        },
-        error: null
-      };
-    }
-    if (type === "magiclink") return {
-      data: {
-        user: null,
-        session: null
-      },
-      error: createAuthError(AuthErrorCode.MagicLinkNotSupported, "Magic link verification is not supported. Use email OTP authentication instead.")
-    };
-    if (type === "signup" || type === "invite") {
-      const result = await this._betterAuth.emailOtp.verifyEmail({
-        email: params.email,
-        otp: params.token
-      });
-      if (result?.error) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: normalizeBetterAuthError(result.error)
-      };
-      const sessionResult = await this.getSession({ forceFetch: true });
-      return {
-        data: {
-          user: sessionResult.data.session?.user ?? null,
-          session: sessionResult.data.session
-        },
-        error: null
-      };
-    }
-    if (type === "recovery") {
-      const checkResult = await this._betterAuth.emailOtp.checkVerificationOtp({
-        email: params.email,
-        otp: params.token,
-        type: "forget-password"
-      });
-      if (checkResult.error || !checkResult.data?.success) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: normalizeBetterAuthError(checkResult.error)
-      };
-      return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: null
-      };
-    }
-    if (type === "email_change") {
-      const result = await this._betterAuth.verifyEmail({ query: {
-        token: params.token,
-        callbackURL: params.options?.redirectTo
-      } });
-      if (result?.error) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: normalizeBetterAuthError(result.error)
-      };
-      const sessionResult = await this.getSession({ forceFetch: true });
-      if (sessionResult.error || !sessionResult.data) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: sessionResult.error || createAuthError(AuthErrorCode.InternalError, "Failed to get session")
-      };
-      if (sessionResult.data.session) BETTER_AUTH_METHODS_HOOKS["updateUser"].onSuccess(sessionResult.data.session);
-      return {
-        data: {
-          user: sessionResult.data?.session?.user || null,
-          session: sessionResult.data?.session || null
-        },
-        error: null
-      };
-    }
-    if (type === "invite") {
-      const result = await this._betterAuth.organization.acceptInvitation({ invitationId: params.token });
-      if (result.error) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: normalizeBetterAuthError(result.error)
-      };
-      const sessionResult = await this.getSession({ forceFetch: true });
-      if (sessionResult.error || !sessionResult.data) return {
-        data: {
-          user: null,
-          session: null
-        },
-        error: sessionResult.error || createAuthError(AuthErrorCode.InternalError, "Failed to get session")
-      };
-      return {
-        data: {
-          user: sessionResult.data?.session?.user || null,
-          session: sessionResult.data?.session
-        },
-        error: null
-      };
-    }
-    return {
-      data: {
-        user: null,
-        session: null
-      },
-      error: createAuthError(AuthErrorCode.ValidationFailed, `Unsupported email OTP type: ${type}`)
-    };
-  }
-  async emitInitialSession(callback) {
-    try {
-      const { data, error: error48 } = await this.getSession();
-      if (error48) {
-        await callback("INITIAL_SESSION", null);
-        return;
-      }
-      await callback("INITIAL_SESSION", data.session);
-    } catch {
-      await callback("INITIAL_SESSION", null);
-    }
-  }
-};
-function SupabaseAuthAdapter(options) {
-  return (url2, fetchOptions) => new SupabaseAuthAdapterImpl({
     baseURL: url2,
     ...options,
     fetchOptions: {
@@ -24850,12 +23641,12 @@ function fetchWithToken(getAccessToken, customFetch) {
 
 // ../cigapp/node_modules/.pnpm/@neondatabase+neon-js@0.7.0_758aff5ae56350d3a7bc9193798f3f2c/node_modules/@neondatabase/neon-js/dist/index.mjs
 var NeonClient = class extends NeonPostgrestClient {
+  auth;
   constructor({ dataApiUrl, options, authClient }) {
     super({
       dataApiUrl,
       options
     });
-    __publicField(this, "auth");
     this.auth = authClient.adapter;
   }
 };
@@ -24953,10 +23744,10 @@ function buildConfigFromBaseUrl(baseUrl, options) {
   };
 }
 
-// neon-client-source.js
+// ../stempeln/neon-client-source.js
 function createStempelnClient(authUrl, dataApiUrl) {
   return createClient({
-    auth: { adapter: SupabaseAuthAdapter(), url: authUrl, allowAnonymous: false },
+    auth: { adapter: BetterAuthVanillaAdapter(), url: authUrl, allowAnonymous: false },
     dataApi: { url: dataApiUrl, options: { db: { schema: "public" } } }
   });
 }

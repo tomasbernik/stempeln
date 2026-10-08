@@ -306,18 +306,44 @@ function updateUserInfo() {
   controls.userInfo.hidden = !name;
 }
 
+function appSession(data) {
+  return data?.session && data?.user ? { ...data.session, user: data.user } : null;
+}
+
+async function authPost(path, body) {
+  const response = await fetch(`${NEON_AUTH_URL.replace(/\/$/, "")}/${path}`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch {
+    // Better Auth can return an empty success response.
+  }
+  if (!response.ok) {
+    throw new Error(
+      payload?.message
+        || payload?.error?.message
+        || `Anmeldung fehlgeschlagen (${response.status}).`,
+    );
+  }
+  return payload;
+}
+
 async function loadSession() {
   if (!neonClient) {
     session = { user: { id: "demo", email: "demo" } };
     return;
   }
 
-  const { data } = await neonClient.auth.getSession();
-  session = data.session;
-  neonClient.auth.onAuthStateChange((_event, nextSession) => {
-    session = nextSession;
-    syncUi();
+  const { data, error } = await neonClient.auth.getSession({
+    fetchOptions: { headers: { "X-Force-Fetch": "true" } },
   });
+  if (error) throw error;
+  session = appSession(data);
 }
 
 async function signInWithGoogle() {
@@ -326,9 +352,9 @@ async function signInWithGoogle() {
     return;
   }
 
-  const { error } = await neonClient.auth.signInWithOAuth({
+  const { error } = await neonClient.auth.signIn.social({
     provider: "google",
-    options: { redirectTo: window.location.origin + window.location.pathname },
+    callbackURL: window.location.origin + window.location.pathname,
   });
   if (error) controls.loginMessage.textContent = error.message;
 }
@@ -345,14 +371,14 @@ async function signInWithEmail() {
     return;
   }
 
-  const { error } = await neonClient.auth.signInWithOtp({
-    email,
-  });
-  controls.loginMessage.textContent = error ? error.message : "Der Code wurde gesendet.";
-  if (!error) {
+  try {
+    await authPost("email-otp/send-verification-otp", { email, type: "sign-in" });
+    controls.loginMessage.textContent = "Der Code wurde gesendet.";
     controls.emailOtp.hidden = false;
     controls.verifyEmailOtpButton.hidden = false;
     controls.emailOtp.focus();
+  } catch (error) {
+    controls.loginMessage.textContent = error.message;
   }
 }
 
@@ -364,8 +390,14 @@ async function verifyEmailOtp() {
     controls.loginMessage.textContent = "Bitte den Code aus der E-Mail eingeben.";
     return;
   }
-  const { error } = await neonClient.auth.verifyOtp({ email, token, type: "email" });
-  controls.loginMessage.textContent = error ? error.message : "Angemeldet.";
+  try {
+    await authPost("sign-in/email-otp", { email, otp: token });
+  } catch (error) {
+    controls.loginMessage.textContent = error.message;
+    return;
+  }
+  controls.loginMessage.textContent = "Angemeldet.";
+  window.location.reload();
 }
 
 async function signOut() {
@@ -583,8 +615,13 @@ async function syncUi() {
   updateUserInfo();
   setMessage(neonClient ? "" : "Demo-Modus: Neon-Konfiguration für die Datenbank ergänzen.");
   if (signedIn) {
-    await refresh();
-    fillForm(todayEntry());
+    try {
+      await refresh();
+      fillForm(todayEntry());
+    } catch (error) {
+      console.error(error);
+      setMessage(error?.message || "Daten konnten nicht geladen werden.");
+    }
   }
 }
 
