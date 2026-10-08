@@ -1,10 +1,11 @@
-const CACHE_NAME = "kikin-stempel-v16";
+const CACHE_NAME = "kikin-stempel-v18-local-neon-sdk";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
-  "./app.js",
-  "./config.js",
+  "./app-neon.js",
+  "./neon-sdk.js",
+  "./neon-config.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

@@ -41,7 +41,11 @@
           <button id="googleLoginButton" class="primary wide" type="button">Mit Google fortfahren</button>
           <div class="email-login">
             <input id="emailInput" type="email" inputmode="email" autocomplete="email" placeholder="email@adresse.de">
-            <button id="emailLoginButton" type="button">Link senden</button>
+            <button id="emailLoginButton" type="button">Code senden</button>
+          </div>
+          <div class="email-login">
+            <input id="emailOtpInput" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" placeholder="Bestätigungscode" hidden>
+            <button id="verifyEmailOtpButton" type="button" hidden>Code bestätigen</button>
           </div>
           <p id="loginMessage" class="tiny"></p>
         </section>
@@ -172,7 +176,6 @@
       </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="app.js"></script>
+    <script type="module" src="app-neon.js"></script>
   </body>
 </html>

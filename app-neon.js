@@ -1,12 +1,13 @@
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config.js";
+import { createStempelnClient } from "./neon-sdk.js";
+import { NEON_AUTH_URL, NEON_DATA_API_URL } from "./neon-config.js";
 
 const TABLE = "stempeln_work_entries";
-const isConfigured = SUPABASE_URL.startsWith("https://")
-  && !SUPABASE_URL.includes("YOUR-PROJECT")
-  && !SUPABASE_ANON_KEY.includes("YOUR-SUPABASE")
-  && SUPABASE_ANON_KEY.length > 20;
-const supabaseClient = isConfigured && window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const isConfigured = NEON_AUTH_URL.startsWith("https://")
+  && NEON_DATA_API_URL.startsWith("https://")
+  && !NEON_AUTH_URL.includes("YOUR-")
+  && !NEON_DATA_API_URL.includes("YOUR-");
+const neonClient = isConfigured
+  ? createStempelnClient(NEON_AUTH_URL, NEON_DATA_API_URL)
   : null;
 
 const STORAGE_KEY = "kikin-stempel-demo-v1";
@@ -34,6 +35,8 @@ const controls = {
   editorPanel: $(".editor-panel"),
   entryMessage: $("#entryMessage"),
   email: $("#emailInput"),
+  emailOtp: $("#emailOtpInput"),
+  verifyEmailOtpButton: $("#verifyEmailOtpButton"),
   loginMessage: $("#loginMessage"),
   appMessage: $("#appMessage"),
   userInfo: $("#userInfo"),
@@ -304,26 +307,26 @@ function updateUserInfo() {
 }
 
 async function loadSession() {
-  if (!supabaseClient) {
+  if (!neonClient) {
     session = { user: { id: "demo", email: "demo" } };
     return;
   }
 
-  const { data } = await supabaseClient.auth.getSession();
+  const { data } = await neonClient.auth.getSession();
   session = data.session;
-  supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
+  neonClient.auth.onAuthStateChange((_event, nextSession) => {
     session = nextSession;
     syncUi();
   });
 }
 
 async function signInWithGoogle() {
-  if (!supabaseClient) {
-    controls.loginMessage.textContent = "Supabase ist noch nicht eingerichtet.";
+  if (!neonClient) {
+    controls.loginMessage.textContent = "Neon ist noch nicht eingerichtet.";
     return;
   }
 
-  const { error } = await supabaseClient.auth.signInWithOAuth({
+  const { error } = await neonClient.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: window.location.origin + window.location.pathname },
   });
@@ -331,8 +334,8 @@ async function signInWithGoogle() {
 }
 
 async function signInWithEmail() {
-  if (!supabaseClient) {
-    controls.loginMessage.textContent = "Supabase ist noch nicht eingerichtet.";
+  if (!neonClient) {
+    controls.loginMessage.textContent = "Neon ist noch nicht eingerichtet.";
     return;
   }
 
@@ -342,16 +345,32 @@ async function signInWithEmail() {
     return;
   }
 
-  const { error } = await supabaseClient.auth.signInWithOtp({
+  const { error } = await neonClient.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: window.location.origin + window.location.pathname },
   });
-  controls.loginMessage.textContent = error ? error.message : "Der Link wurde gesendet.";
+  controls.loginMessage.textContent = error ? error.message : "Der Code wurde gesendet.";
+  if (!error) {
+    controls.emailOtp.hidden = false;
+    controls.verifyEmailOtpButton.hidden = false;
+    controls.emailOtp.focus();
+  }
+}
+
+async function verifyEmailOtp() {
+  if (!neonClient) return;
+  const email = controls.email.value.trim();
+  const token = controls.emailOtp.value.trim();
+  if (!email || !/^\d{6,10}$/.test(token)) {
+    controls.loginMessage.textContent = "Bitte den Code aus der E-Mail eingeben.";
+    return;
+  }
+  const { error } = await neonClient.auth.verifyOtp({ email, token, type: "email" });
+  controls.loginMessage.textContent = error ? error.message : "Angemeldet.";
 }
 
 async function signOut() {
-  if (supabaseClient) await supabaseClient.auth.signOut();
-  session = supabaseClient ? null : { user: { id: "demo", email: "demo" } };
+  if (neonClient) await neonClient.auth.signOut();
+  session = neonClient ? null : { user: { id: "demo", email: "demo" } };
   await syncUi();
 }
 
@@ -362,11 +381,11 @@ async function fetchEntries() {
   const start = dateFromMonth(month, 1);
   const end = dateFromMonth(month, daysInMonth(month));
 
-  if (!supabaseClient) {
+  if (!neonClient) {
     return demoEntries().filter((entry) => entry.work_date >= start && entry.work_date <= end);
   }
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await neonClient
     .from(TABLE)
     .select("*")
     .gte("work_date", start)
@@ -378,14 +397,14 @@ async function fetchEntries() {
 }
 
 async function saveEntry(entry) {
-  if (!supabaseClient) {
+  if (!neonClient) {
     const current = demoEntries().filter((item) => item.id !== entry.id);
     saveDemoEntries([...current, entry]);
     return entry;
   }
 
   const payload = { ...entry, user_id: userId() };
-  const { data, error } = await supabaseClient
+  const { data, error } = await neonClient
     .from(TABLE)
     .upsert(payload)
     .select()
@@ -397,12 +416,12 @@ async function saveEntry(entry) {
 async function deleteEntry(id) {
   if (!id) return;
 
-  if (!supabaseClient) {
+  if (!neonClient) {
     saveDemoEntries(demoEntries().filter((entry) => entry.id !== id));
     return;
   }
 
-  const { error } = await supabaseClient.from(TABLE).delete().eq("id", id);
+  const { error } = await neonClient.from(TABLE).delete().eq("id", id);
   if (error) throw error;
 }
 
@@ -560,9 +579,9 @@ async function syncUi() {
   const signedIn = Boolean(session);
   controls.loginView.hidden = signedIn;
   controls.mainView.hidden = !signedIn;
-  controls.logoutButton.hidden = !signedIn || !supabaseClient;
+  controls.logoutButton.hidden = !signedIn || !neonClient;
   updateUserInfo();
-  setMessage(supabaseClient ? "" : "Demo-Modus: Supabase-Konfiguration für die Datenbank ergänzen.");
+  setMessage(neonClient ? "" : "Demo-Modus: Neon-Konfiguration für die Datenbank ergänzen.");
   if (signedIn) {
     await refresh();
     fillForm(todayEntry());
@@ -742,6 +761,7 @@ async function shareExcel() {
 
 $("#googleLoginButton").addEventListener("click", signInWithGoogle);
 $("#emailLoginButton").addEventListener("click", signInWithEmail);
+controls.verifyEmailOtpButton.addEventListener("click", verifyEmailOtp);
 $("#logoutButton").addEventListener("click", signOut);
 $("#syncButton").addEventListener("click", async () => {
   await refresh();
