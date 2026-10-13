@@ -318,6 +318,19 @@ h2 {
   min-height: 18px;
 }
 
+.stamp-message {
+  min-height: 18px;
+  margin: 8px 0 0;
+}
+
+.stamp-message[data-tone="success"] {
+  color: #12805c;
+}
+
+.stamp-message[data-tone="error"] {
+  color: var(--danger);
+}
+
 .form-message[data-tone="success"] {
   color: #12805c;
 }

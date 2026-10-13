@@ -27,6 +27,7 @@ const INSTALL_DISMISS_DAYS = 14;
 let session = null;
 let entries = [];
 let deferredInstallPrompt = null;
+let stampInProgress = false;
 
 const $ = (selector) => document.querySelector(selector);
 const controls = {
@@ -43,6 +44,7 @@ const controls = {
   todayLabel: $("#todayLabel"),
   todayStatus: $("#todayStatus"),
   todayTimes: $("#todayTimes"),
+  stampMessage: $("#stampMessage"),
   clockInButton: $("#clockInButton"),
   clockOutButton: $("#clockOutButton"),
   entryId: $("#entryIdInput"),
@@ -229,6 +231,11 @@ function setMessage(text) {
 function setEntryMessage(text, tone = "") {
   controls.entryMessage.textContent = text;
   controls.entryMessage.dataset.tone = tone;
+}
+
+function setStampMessage(text, tone = "") {
+  controls.stampMessage.textContent = text;
+  controls.stampMessage.dataset.tone = tone;
 }
 
 function isStandalone() {
@@ -535,7 +542,7 @@ function renderToday() {
   if (!current) {
     controls.todayStatus.textContent = "Noch nicht erfasst";
     controls.todayTimes.textContent = "";
-    controls.clockInButton.disabled = false;
+    controls.clockInButton.disabled = stampInProgress;
     controls.clockOutButton.disabled = true;
     return;
   }
@@ -544,8 +551,8 @@ function renderToday() {
   const outTime = toTimeInput(current.clock_out) || "--:--";
   controls.todayStatus.textContent = active ? "Bei der Arbeit" : "Bereit";
   controls.todayTimes.textContent = `${inTime} - ${outTime}`;
-  controls.clockInButton.disabled = Boolean(active);
-  controls.clockOutButton.disabled = !active;
+  controls.clockInButton.disabled = stampInProgress || Boolean(active);
+  controls.clockOutButton.disabled = stampInProgress || !active;
 }
 
 function renderEntries() {
@@ -626,12 +633,17 @@ async function syncUi() {
 }
 
 async function stamp(kind) {
+  if (stampInProgress) return;
+
   const now = new Date();
   const active = activeTodayEntry();
 
-  if (kind === "out" && !active) return;
+  if (kind === "out" && !active) {
+    setStampMessage("Kein offener Arbeitsbeginn gefunden. Bitte Daten aktualisieren.", "error");
+    return;
+  }
 
-  const base = kind === "out" ? active : {
+  const base = kind === "out" ? { ...active } : {
     id: crypto.randomUUID(),
     user_id: userId(),
     work_date: localDate(now),
@@ -645,10 +657,35 @@ async function stamp(kind) {
   if (kind === "in") base.clock_in = now.toISOString();
   if (kind === "out") base.clock_out = now.toISOString();
 
-  await saveEntry(base);
-  controls.month.value = localMonth(now);
-  await refresh();
-  fillForm(activeTodayEntry() || todayEntry());
+  const actionLabel = kind === "in" ? "Einstempeln" : "Ausstempeln";
+  stampInProgress = true;
+  renderToday();
+  setStampMessage(`${actionLabel} wird gespeichert …`);
+
+  try {
+    const savedEntry = await saveEntry(base);
+    entries = [...entries.filter((entry) => entry.id !== savedEntry.id), savedEntry];
+    controls.month.value = localMonth(now);
+
+    try {
+      await refresh();
+    } catch (error) {
+      console.error(error);
+      render();
+      fillForm(activeTodayEntry() || todayEntry());
+      setStampMessage(`${actionLabel} wurde gespeichert. Die Ansicht konnte nicht aktualisiert werden.`, "success");
+      return;
+    }
+
+    fillForm(activeTodayEntry() || todayEntry());
+    setStampMessage(`${actionLabel} wurde gespeichert.`, "success");
+  } catch (error) {
+    console.error(error);
+    setStampMessage(`${actionLabel} konnte nicht gespeichert werden. Bitte erneut versuchen.`, "error");
+  } finally {
+    stampInProgress = false;
+    renderToday();
+  }
 }
 
 function htmlEscape(value) {
