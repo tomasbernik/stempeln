@@ -31,3 +31,18 @@ Nach dem Öffnen der GitHub-Pages-Adresse am Handy kannst du im Browser `Add to 
 ## Export
 
 `Export CSV` lädt die Datei für den ausgewählten Monat herunter. `Teilen` nutzt die mobile Dateifreigabe, wenn der Browser sie unterstützt; sonst wird die Datei heruntergeladen.
+
+## Wochenstunden
+
+Der Stundenplan gilt pro Datum bei fünf Arbeitstagen pro Woche: bis September
+2026 16,25 h/Woche, ab 1. Oktober 2026 19,25 h/Woche. Weitere Änderungen lassen
+sich unter „Wochenstunden ändern“ mit einem Gültigkeitsdatum speichern. Der
+Überstundensaldo summiert die für jeden Wochentag gültigen Sollminuten; spätere
+Änderungen verändern frühere Tage nicht. Bruchteile von Minuten werden erst
+für den gesamten Berechnungszeitraum gerundet.
+
+Zusätzliche Pläne werden pro Benutzer im lokalen Browser gespeichert. Sie
+werden nicht mit Neon synchronisiert und gehen beim Löschen der Browserdaten
+verloren. Die beiden Vorgaben für 2026 sind fest hinterlegt und bleiben erhalten.
+
+Prüfen: `node --test tests/target-history.test.cjs`

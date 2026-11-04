@@ -503,3 +503,7 @@ footer {
     width: 100%;
   }
 }
+
+.target-history { margin-bottom: 18px; }
+.target-history summary { cursor: pointer; }
+.target-history form { display: grid; gap: 12px; margin-top: 12px; }

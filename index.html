@@ -149,9 +149,21 @@
             </div>
 
             <label class="target-setting">
-              Soll/Tag
-              <input id="dailyTargetInput" type="time" step="60" value="03:15">
+              Soll/Tag (Monatsanfang)
+              <input id="dailyTargetInput" type="time" step="60" value="03:15" readonly>
             </label>
+
+            <details class="target-history">
+              <summary>Wochenstunden ändern</summary>
+              <ul id="targetHistory" class="tiny"></ul>
+              <form id="targetForm">
+                <label>Gültig ab<input id="targetFromInput" type="date" min="2026-10-02" required></label>
+                <label>Stunden pro Woche<input id="weeklyHoursInput" type="text" inputmode="decimal" placeholder="19,25" required></label>
+                <button type="submit">Stundenplan speichern</button>
+                <p id="targetMessage" class="tiny" role="status"></p>
+              </form>
+              <p class="tiny">5 Tage/Woche. Änderungen gelten ab dem angegebenen Datum. Der Plan wird in diesem Browser gespeichert.</p>
+            </details>
 
             <div class="export-actions">
               <button id="exportCsvButton" type="button">Export Excel</button>

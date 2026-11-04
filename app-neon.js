@@ -11,8 +11,11 @@ const neonClient = isConfigured
   : null;
 
 const STORAGE_KEY = "kikin-stempel-demo-v1";
-const DAILY_TARGET_KEY = "stempeln-daily-target-minutes";
-const DEFAULT_DAILY_TARGET_MINUTES = 195;
+const TARGET_HISTORY_KEY = "stempeln-target-history-v1";
+const DEFAULT_TARGET_HISTORY = [
+  { from: "0001-01-01", weeklyHours: 16.25 },
+  { from: "2026-10-01", weeklyHours: 19.25 },
+];
 const TYPE_LABELS = {
   work: "Arbeit",
   vacation: "Urlaub",
@@ -191,29 +194,65 @@ function isWeekday(date) {
   return day >= 1 && day <= 5;
 }
 
-function workdaysUntil(dateStart, dateEnd) {
+function expectedMinutesUntil(dateStart, dateEnd) {
   if (!dateEnd) return 0;
   let count = 0;
   const cursor = new Date(`${dateStart}T12:00:00`);
   const end = new Date(`${dateEnd}T12:00:00`);
 
   while (cursor <= end) {
-    if (isWeekday(localDate(cursor))) count += 1;
+    const date = localDate(cursor);
+    if (isWeekday(date)) count += dailyTargetMinutes(date);
     cursor.setDate(cursor.getDate() + 1);
   }
 
-  return count;
+  return Math.round(count);
 }
 
-function dailyTargetMinutes() {
-  return Number(localStorage.getItem(DAILY_TARGET_KEY) || DEFAULT_DAILY_TARGET_MINUTES);
+function targetHistory() {
+  const saved = JSON.parse(localStorage.getItem(`${TARGET_HISTORY_KEY}:${userId()}`) || "[]");
+  return [...DEFAULT_TARGET_HISTORY, ...saved].sort((a, b) => a.from.localeCompare(b.from));
 }
 
-function saveDailyTarget() {
-  const minutes = minutesFromTimeValue(controls.dailyTarget.value) || DEFAULT_DAILY_TARGET_MINUTES;
-  localStorage.setItem(DAILY_TARGET_KEY, String(minutes));
-  controls.dailyTarget.value = timeValueFromMinutes(minutes);
-  renderSummary();
+function dailyTargetMinutes(date) {
+  const applicable = targetHistory().filter((period) => period.from <= date);
+  return applicable[applicable.length - 1].weeklyHours * 60 / 5;
+}
+
+function renderTargetHistory() {
+  const list = $("#targetHistory");
+  list.replaceChildren();
+  for (const period of targetHistory()) {
+    const item = document.createElement("li");
+    const date = period.from === "0001-01-01" ? "Bis 30.09.2026" : `Ab ${period.from.split("-").reverse().join(".")}`;
+    item.textContent = `${date}: ${String(period.weeklyHours).replace(".", ",")} h/Woche`;
+    list.append(item);
+  }
+}
+
+function saveTargetPeriod(event) {
+  event.preventDefault();
+  const from = $("#targetFromInput").value;
+  const weeklyHours = Number($("#weeklyHoursInput").value.replace(",", "."));
+  const message = $("#targetMessage");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || from <= "2026-10-01"
+      || !Number.isFinite(weeklyHours) || weeklyHours <= 0 || weeklyHours > 120) {
+    message.textContent = "Bitte ein Datum nach dem 01.10.2026 und Wochenstunden zwischen 0 und 120 eingeben.";
+    return;
+  }
+  const history = targetHistory();
+  const previous = history.find((period) => period.from === from);
+  if (from <= localDate() && !confirm("Diese Änderung betrifft vergangene Tage. Den Saldo ab diesem Datum neu berechnen?")) return;
+  if (previous && !confirm("Für dieses Datum gibt es bereits einen Plan. Ersetzen?")) return;
+  const saved = history.filter((period) => period.from > "2026-10-01" && period.from !== from);
+  try {
+    localStorage.setItem(`${TARGET_HISTORY_KEY}:${userId()}`, JSON.stringify([...saved, { from, weeklyHours }]));
+    renderTargetHistory();
+    renderSummary();
+    message.textContent = "Gespeichert. Frühere Tage behalten ihren bisherigen Stundenplan.";
+  } catch {
+    message.textContent = "Speichern fehlgeschlagen. Bitte erneut versuchen.";
+  }
 }
 
 function formatDate(date) {
@@ -592,7 +631,8 @@ function renderSummary() {
   const total = countedEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
   const workDays = new Set(countedEntries.map((entry) => entry.work_date));
   const { start, end } = selectedMonthRangeUntilToday();
-  const expected = workdaysUntil(start, end) * dailyTargetMinutes();
+  const expected = expectedMinutesUntil(start, end);
+  controls.dailyTarget.value = timeValueFromMinutes(Math.round(dailyTargetMinutes(start)));
   const currentTotal = countedEntries
     .filter((entry) => entry.work_date >= start && entry.work_date <= end)
     .reduce((sum, entry) => sum + workedMinutes(entry), 0);
@@ -623,6 +663,7 @@ async function syncUi() {
   setMessage(neonClient ? "" : "Demo-Modus: Neon-Konfiguration für die Datenbank ergänzen.");
   if (signedIn) {
     try {
+      renderTargetHistory();
       await refresh();
       fillForm(todayEntry());
     } catch (error) {
@@ -668,6 +709,7 @@ async function stamp(kind) {
     controls.month.value = localMonth(now);
 
     try {
+      renderTargetHistory();
       await refresh();
     } catch (error) {
       console.error(error);
@@ -906,11 +948,8 @@ controls.entriesList.addEventListener("click", (event) => {
   controls.editorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
+$("#targetForm").addEventListener("submit", saveTargetPeriod);
 controls.month.addEventListener("change", refresh);
-controls.dailyTarget.addEventListener("blur", () => {
-  if (cleanTimeField(controls.dailyTarget)) saveDailyTarget();
-});
-controls.dailyTarget.addEventListener("change", saveDailyTarget);
 $("#exportCsvButton").addEventListener("click", downloadExcel);
 $("#shareButton").addEventListener("click", shareExcel);
 
@@ -937,7 +976,6 @@ if (standaloneQuery.addEventListener) {
 }
 
 controls.month.value = localMonth();
-controls.dailyTarget.value = timeValueFromMinutes(dailyTargetMinutes());
 fillForm();
 await loadSession();
 await syncUi();
