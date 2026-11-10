@@ -65,6 +65,8 @@ const controls = {
   month: $("#monthInput"),
   entriesList: $("#entriesList"),
   totalHours: $("#totalHours"),
+  monthlyBalance: $("#monthlyBalance"),
+  monthlyBalanceLabel: $("#monthlyBalanceLabel"),
   overtimeBalance: $("#overtimeBalance"),
   overtimeLabel: $("#overtimeLabel"),
   totalDays: $("#totalDays"),
@@ -256,6 +258,11 @@ function expectedMinutesForEntries(dateStart, dateEnd, sourceEntries) {
   }
 
   return Math.round(count);
+}
+
+function balanceMinutes(sourceEntries, dateStart, dateEnd) {
+  const periodEntries = entriesForRange(sourceEntries, dateStart, dateEnd);
+  return creditedMinutes(periodEntries) - expectedMinutesForEntries(dateStart, dateEnd, periodEntries);
 }
 
 function localTargetHistory() {
@@ -790,15 +797,17 @@ function renderSummary() {
   const total = creditedMinutes(monthEntries);
   const workDays = new Set(countedEntries.map((entry) => entry.work_date));
   const { end } = selectedMonthRangeUntilToday();
-  const balanceEntries = entriesForRange(entries, BALANCE_START_DATE, end);
-  const expected = expectedMinutesForEntries(BALANCE_START_DATE, end, balanceEntries);
-  const currentTotal = creditedMinutes(balanceEntries);
+  const isCurrentMonth = month === localMonth();
   controls.dailyTarget.value = timeValueFromMinutes(Math.round(dailyTargetMinutes(monthStart)));
-  controls.overtimeLabel.textContent = month === localMonth()
-    ? "Saldo seit 01.06.2026 bis gestern"
-    : "Saldo seit 01.06.2026 bis Monatsende";
+  controls.monthlyBalanceLabel.textContent = isCurrentMonth
+    ? "Monatssaldo bis gestern"
+    : "Monatssaldo bis Monatsende";
+  controls.overtimeLabel.textContent = isCurrentMonth
+    ? "Gesamtsaldo seit 01.06.2026 bis gestern"
+    : "Gesamtsaldo seit 01.06.2026 bis Monatsende";
   controls.totalHours.textContent = formatDurationWithDecimal(total);
-  controls.overtimeBalance.textContent = formatSignedDuration(currentTotal - expected);
+  controls.monthlyBalance.textContent = formatSignedDuration(balanceMinutes(entries, monthStart, end));
+  controls.overtimeBalance.textContent = formatSignedDuration(balanceMinutes(entries, BALANCE_START_DATE, end));
   controls.totalDays.textContent = String(workDays.size);
   controls.averageHours.textContent = formatDuration(workDays.size ? Math.round(total / workDays.size) : 0);
 }

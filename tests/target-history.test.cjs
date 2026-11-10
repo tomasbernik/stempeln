@@ -17,6 +17,7 @@ function calculation(periods = []) {
     'creditedMinutesForDate',
     'creditedMinutes',
     'expectedMinutesForEntries',
+    'balanceMinutes',
     'localTargetHistory',
     'targetHistory',
     'dailyTargetMinutes',
@@ -113,6 +114,14 @@ test('durations show clock time and decimal hours', () => {
   const c = calculation();
   assert.equal(c.formatDurationWithDecimal(195), '3:15 (3,25 h)');
   assert.equal(c.formatDurationWithDecimal(285), '4:45 (4,75 h)');
+});
+
+test('monthly and cumulative balances use different start dates', () => {
+  const c = calculation();
+  const entries = [{ work_date: '2026-07-06', type: 'sick', clock_in: null, clock_out: null }];
+
+  assert.equal(c.balanceMinutes(entries, '2026-07-01', '2026-07-06'), -3 * 195);
+  assert.equal(c.balanceMinutes(entries, c.BALANCE_START_DATE, '2026-07-06'), -25 * 195);
 });
 
 test('balance period starts on 1 June 2026', () => {

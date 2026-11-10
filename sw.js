@@ -1,4 +1,4 @@
-const CACHE_NAME = "kikin-stempel-v28-decimal-hours";
+const CACHE_NAME = "kikin-stempel-v29-monthly-balance";
 const ASSETS = [
   "./",
   "./index.html",
