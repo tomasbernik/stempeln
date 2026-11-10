@@ -1,4 +1,4 @@
-const CACHE_NAME = "kikin-stempel-v23-contract-history";
+const CACHE_NAME = "kikin-stempel-v28-decimal-hours";
 const ASSETS = [
   "./",
   "./index.html",

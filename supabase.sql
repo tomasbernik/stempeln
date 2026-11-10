@@ -2,7 +2,7 @@ create extension if not exists "pgcrypto";
 
 create table if not exists public.stempeln_work_entries (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references neon_auth."user"(id) on delete cascade,
   work_date date not null,
   clock_in timestamptz,
   clock_out timestamptz,

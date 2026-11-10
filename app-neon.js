@@ -2,6 +2,7 @@ import { createStempelnClient } from "./neon-sdk.js";
 import { NEON_AUTH_URL, NEON_DATA_API_URL } from "./neon-config.js";
 
 const TABLE = "stempeln_work_entries";
+const TARGET_HISTORY_TABLE = "stempeln_target_history";
 const isConfigured = NEON_AUTH_URL.startsWith("https://")
   && NEON_DATA_API_URL.startsWith("https://")
   && !NEON_AUTH_URL.includes("YOUR-")
@@ -12,17 +13,21 @@ const neonClient = isConfigured
 
 const STORAGE_KEY = "kikin-stempel-demo-v1";
 const TARGET_HISTORY_KEY = "stempeln-target-history-v1";
+const TARGET_HISTORY_MIGRATED_KEY = "stempeln-target-history-neon-v1";
+const BALANCE_START_DATE = "2026-06-01";
 const DEFAULT_TARGET_HISTORY = [
-  { from: "0001-01-01", weeklyHours: 16.25 },
-  { from: "2026-10-01", weeklyHours: 19.25 },
+  { from: "0001-01-01", weeklyHours: 16.25, weekdayHours: [3.25, 3.25, 3.25, 3.25, 3.25] },
+  { from: "2026-10-01", weeklyHours: 19.25, weekdayHours: [4.75, 3.25, 3.25, 3.25, 4.75] },
 ];
+const COUNTED_DAY_TYPES = new Set(["work", "vacation", "sick", "holiday"]);
+const CREDITED_ABSENCE_TYPES = new Set(["vacation", "sick", "holiday"]);
+let targetHistoryPeriods = null;
 const TYPE_LABELS = {
   work: "Arbeit",
   vacation: "Urlaub",
   sick: "Krank",
   holiday: "Feiertag",
 };
-const COUNTED_HOUR_TYPES = new Set(["work", "sick"]);
 
 const INSTALL_DISMISSED_KEY = "stempeln-install-dismissed-at";
 const INSTALL_DISMISS_DAYS = 14;
@@ -61,6 +66,7 @@ const controls = {
   entriesList: $("#entriesList"),
   totalHours: $("#totalHours"),
   overtimeBalance: $("#overtimeBalance"),
+  overtimeLabel: $("#overtimeLabel"),
   totalDays: $("#totalDays"),
   averageHours: $("#averageHours"),
   dailyTarget: $("#dailyTargetInput"),
@@ -156,7 +162,7 @@ function timeValueFromMinutes(minutes) {
 }
 
 function workedMinutes(entry) {
-  if (!COUNTED_HOUR_TYPES.has(entry.type) || !entry.clock_in || !entry.clock_out) return 0;
+  if (entry.type !== "work" || !entry.clock_in || !entry.clock_out) return 0;
   let out = minutesFromIso(entry.clock_out);
   const into = minutesFromIso(entry.clock_in);
   if (out < into) out += 24 * 60;
@@ -164,11 +170,16 @@ function workedMinutes(entry) {
 }
 
 function formatDuration(minutes) {
-  return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`;
+  const rounded = Math.round(minutes);
+  return `${Math.floor(rounded / 60)}:${String(rounded % 60).padStart(2, "0")}`;
 }
 
 function formatDecimalHours(minutes) {
   return (minutes / 60).toFixed(2).replace(".", ",");
+}
+
+function formatDurationWithDecimal(minutes) {
+  return `${formatDuration(minutes)} (${formatDecimalHours(minutes)} h)`;
 }
 
 function formatSignedDuration(minutes) {
@@ -195,6 +206,44 @@ function isWeekday(date) {
 }
 
 function expectedMinutesUntil(dateStart, dateEnd) {
+  return expectedMinutesForEntries(dateStart, dateEnd, []);
+}
+
+function entriesForRange(sourceEntries, dateStart, dateEnd) {
+  if (!dateEnd || dateEnd < dateStart) return [];
+  return sourceEntries.filter((entry) => entry.work_date >= dateStart && entry.work_date <= dateEnd);
+}
+
+function entriesGroupedByDate(sourceEntries) {
+  const grouped = new Map();
+  for (const entry of sourceEntries) {
+    const dayEntries = grouped.get(entry.work_date) || [];
+    dayEntries.push(entry);
+    grouped.set(entry.work_date, dayEntries);
+  }
+  return grouped;
+}
+
+function creditedMinutesForDate(date, dayEntries) {
+  const worked = dayEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
+  const hasCreditedAbsence = dayEntries.some((entry) => CREDITED_ABSENCE_TYPES.has(entry.type));
+  return hasCreditedAbsence && isWeekday(date) ? Math.max(worked, dailyTargetMinutes(date)) : worked;
+}
+
+function displayedMinutes(entry) {
+  if (CREDITED_ABSENCE_TYPES.has(entry.type) && isWeekday(entry.work_date)) return dailyTargetMinutes(entry.work_date);
+  return workedMinutes(entry);
+}
+
+function creditedMinutes(sourceEntries) {
+  let total = 0;
+  for (const [date, dayEntries] of entriesGroupedByDate(sourceEntries)) {
+    total += creditedMinutesForDate(date, dayEntries);
+  }
+  return Math.round(total);
+}
+
+function expectedMinutesForEntries(dateStart, dateEnd, sourceEntries) {
   if (!dateEnd) return 0;
   let count = 0;
   const cursor = new Date(`${dateStart}T12:00:00`);
@@ -209,14 +258,83 @@ function expectedMinutesUntil(dateStart, dateEnd) {
   return Math.round(count);
 }
 
+function localTargetHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(`${TARGET_HISTORY_KEY}:${userId()}`) || "[]");
+    if (!Array.isArray(saved)) return [];
+    return saved.filter((period) => /^\d{4}-\d{2}-\d{2}$/.test(period.from)
+      && Number.isFinite(Number(period.weeklyHours))
+      && Number(period.weeklyHours) > 0
+      && Number(period.weeklyHours) <= 120)
+      .map((period) => ({ from: period.from, weeklyHours: Number(period.weeklyHours) }));
+  } catch {
+    return [];
+  }
+}
+
 function targetHistory() {
-  const saved = JSON.parse(localStorage.getItem(`${TARGET_HISTORY_KEY}:${userId()}`) || "[]");
+  const saved = targetHistoryPeriods ?? localTargetHistory();
   return [...DEFAULT_TARGET_HISTORY, ...saved].sort((a, b) => a.from.localeCompare(b.from));
+}
+
+async function fetchTargetHistoryFromNeon() {
+  const { data, error } = await neonClient
+    .from(TARGET_HISTORY_TABLE)
+    .select("effective_from, weekly_hours")
+    .order("effective_from", { ascending: true });
+  if (error) throw error;
+  return (data || []).map((period) => ({
+    from: period.effective_from,
+    weeklyHours: Number(period.weekly_hours),
+  }));
+}
+
+async function loadTargetHistory() {
+  const localPeriods = localTargetHistory();
+  if (!neonClient) {
+    targetHistoryPeriods = localPeriods;
+    return;
+  }
+
+  let remotePeriods = await fetchTargetHistoryFromNeon();
+  const fingerprint = JSON.stringify(localPeriods);
+  const migratedKey = `${TARGET_HISTORY_MIGRATED_KEY}:${userId()}`;
+  const alreadyMigrated = localStorage.getItem(migratedKey) === fingerprint;
+
+  if (localPeriods.length && !alreadyMigrated) {
+    const remoteByDate = new Map(remotePeriods.map((period) => [period.from, period.weeklyHours]));
+    const missing = localPeriods.filter((period) => !remoteByDate.has(period.from));
+    const conflicts = localPeriods.filter((period) => remoteByDate.has(period.from)
+      && remoteByDate.get(period.from) !== period.weeklyHours);
+
+    if (missing.length) {
+      const { error } = await neonClient.from(TARGET_HISTORY_TABLE).insert(missing.map((period) => ({
+        user_id: userId(),
+        effective_from: period.from,
+        weekly_hours: period.weeklyHours,
+      })));
+      if (error) throw error;
+      remotePeriods = await fetchTargetHistoryFromNeon();
+    }
+
+    if (conflicts.length) {
+      setMessage("Lokaler Stundenplan wurde wegen eines Konflikts nicht überschrieben. Die lokale Kopie bleibt erhalten.");
+    } else {
+      localStorage.setItem(migratedKey, fingerprint);
+    }
+  }
+
+  targetHistoryPeriods = remotePeriods;
 }
 
 function dailyTargetMinutes(date) {
   const applicable = targetHistory().filter((period) => period.from <= date);
-  return applicable[applicable.length - 1].weeklyHours * 60 / 5;
+  const period = applicable[applicable.length - 1];
+  const weekday = new Date(`${date}T12:00:00`).getDay();
+  if (period.weekdayHours && weekday >= 1 && weekday <= 5) {
+    return period.weekdayHours[weekday - 1] * 60;
+  }
+  return period.weeklyHours * 60 / 5;
 }
 
 function renderTargetHistory() {
@@ -225,12 +343,15 @@ function renderTargetHistory() {
   for (const period of targetHistory()) {
     const item = document.createElement("li");
     const date = period.from === "0001-01-01" ? "Bis 30.09.2026" : `Ab ${period.from.split("-").reverse().join(".")}`;
-    item.textContent = `${date}: ${String(period.weeklyHours).replace(".", ",")} h/Woche`;
+    const distribution = period.weekdayHours
+      ? ` · Mo ${formatDuration(period.weekdayHours[0] * 60)}, Di–Do ${formatDuration(period.weekdayHours[1] * 60)}, Fr ${formatDuration(period.weekdayHours[4] * 60)}`
+      : "";
+    item.textContent = `${date}: ${String(period.weeklyHours).replace(".", ",")} h/Woche${distribution}`;
     list.append(item);
   }
 }
 
-function saveTargetPeriod(event) {
+async function saveTargetPeriod(event) {
   event.preventDefault();
   const from = $("#targetFromInput").value;
   const weeklyHours = Number($("#weeklyHoursInput").value.replace(",", "."));
@@ -244,12 +365,25 @@ function saveTargetPeriod(event) {
   const previous = history.find((period) => period.from === from);
   if (from <= localDate() && !confirm("Diese Änderung betrifft vergangene Tage. Den Saldo ab diesem Datum neu berechnen?")) return;
   if (previous && !confirm("Für dieses Datum gibt es bereits einen Plan. Ersetzen?")) return;
-  const saved = history.filter((period) => period.from > "2026-10-01" && period.from !== from);
   try {
-    localStorage.setItem(`${TARGET_HISTORY_KEY}:${userId()}`, JSON.stringify([...saved, { from, weeklyHours }]));
+    if (neonClient) {
+      const { error } = await neonClient.from(TARGET_HISTORY_TABLE).upsert({
+        user_id: userId(),
+        effective_from: from,
+        weekly_hours: weeklyHours,
+      }, { onConflict: "user_id,effective_from" });
+      if (error) throw error;
+      targetHistoryPeriods = await fetchTargetHistoryFromNeon();
+    } else {
+      const saved = history.filter((period) => period.from > "2026-10-01" && period.from !== from);
+      localStorage.setItem(`${TARGET_HISTORY_KEY}:${userId()}`, JSON.stringify([...saved, { from, weeklyHours }]));
+      targetHistoryPeriods = localTargetHistory();
+    }
     renderTargetHistory();
     renderSummary();
-    message.textContent = "Gespeichert. Frühere Tage behalten ihren bisherigen Stundenplan.";
+    message.textContent = neonClient
+      ? "In Neon gespeichert. Frühere Tage behalten ihren bisherigen Stundenplan."
+      : "Gespeichert. Frühere Tage behalten ihren bisherigen Stundenplan.";
   } catch {
     message.textContent = "Speichern fehlgeschlagen. Bitte erneut versuchen.";
   }
@@ -456,8 +590,11 @@ async function fetchEntries() {
   if (!session) return [];
 
   const month = controls.month.value;
-  const start = dateFromMonth(month, 1);
-  const end = dateFromMonth(month, daysInMonth(month));
+  const monthStart = dateFromMonth(month, 1);
+  const monthEnd = dateFromMonth(month, daysInMonth(month));
+  const currentMonthEnd = dateFromMonth(localMonth(), daysInMonth(localMonth()));
+  const start = monthStart < BALANCE_START_DATE ? monthStart : BALANCE_START_DATE;
+  const end = monthEnd > currentMonthEnd ? monthEnd : currentMonthEnd;
 
   if (!neonClient) {
     return demoEntries().filter((entry) => entry.work_date >= start && entry.work_date <= end);
@@ -530,6 +667,7 @@ function fillForm(entry = null) {
   controls.type.value = entry?.type || "work";
   controls.note.value = entry?.note || "";
   controls.deleteButton.hidden = !entry?.id;
+  updateEntryTypeFields();
 }
 
 function clearForm() {
@@ -541,6 +679,19 @@ function clearForm() {
   controls.type.value = "work";
   controls.note.value = "";
   controls.deleteButton.hidden = true;
+  updateEntryTypeFields();
+}
+
+function updateEntryTypeFields(clearValues = false) {
+  const hasTimes = controls.type.value === "work";
+  if (clearValues && !hasTimes) {
+    controls.clockIn.value = "";
+    controls.clockOut.value = "";
+    controls.breakMinutes.value = "0";
+  }
+  controls.clockIn.disabled = !hasTimes;
+  controls.clockOut.disabled = !hasTimes;
+  controls.breakMinutes.disabled = !hasTimes;
 }
 
 function entryForDate(date) {
@@ -595,7 +746,11 @@ function renderToday() {
 }
 
 function renderEntries() {
-  const sorted = [...entries].sort((a, b) => {
+  const sorted = entriesForRange(
+    entries,
+    dateFromMonth(controls.month.value, 1),
+    dateFromMonth(controls.month.value, daysInMonth(controls.month.value)),
+  ).sort((a, b) => {
     const dateOrder = a.work_date.localeCompare(b.work_date);
     return dateOrder || entryTimeValue(a) - entryTimeValue(b);
   });
@@ -620,23 +775,29 @@ function renderEntries() {
         <span>Kommen ${toTimeInput(entry.clock_in) || "--:--"} · Gehen ${toTimeInput(entry.clock_out) || "--:--"}</span>
         <span>${TYPE_LABELS[entry.type] || entry.type}</span>
       </span>
-      <span class="entry-meta">${formatDuration(workedMinutes(entry))}</span>
+      <span class="entry-meta">${formatDurationWithDecimal(displayedMinutes(entry))}</span>
     `;
     controls.entriesList.append(item);
   }
 }
 
 function renderSummary() {
-  const countedEntries = entries.filter((entry) => COUNTED_HOUR_TYPES.has(entry.type));
-  const total = countedEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
+  const month = controls.month.value;
+  const monthStart = dateFromMonth(month, 1);
+  const monthEnd = dateFromMonth(month, daysInMonth(month));
+  const monthEntries = entriesForRange(entries, monthStart, monthEnd);
+  const countedEntries = monthEntries.filter((entry) => COUNTED_DAY_TYPES.has(entry.type));
+  const total = creditedMinutes(monthEntries);
   const workDays = new Set(countedEntries.map((entry) => entry.work_date));
-  const { start, end } = selectedMonthRangeUntilToday();
-  const expected = expectedMinutesUntil(start, end);
-  controls.dailyTarget.value = timeValueFromMinutes(Math.round(dailyTargetMinutes(start)));
-  const currentTotal = countedEntries
-    .filter((entry) => entry.work_date >= start && entry.work_date <= end)
-    .reduce((sum, entry) => sum + workedMinutes(entry), 0);
-  controls.totalHours.textContent = `${formatDuration(total)} (${formatDecimalHours(total)})`;
+  const { end } = selectedMonthRangeUntilToday();
+  const balanceEntries = entriesForRange(entries, BALANCE_START_DATE, end);
+  const expected = expectedMinutesForEntries(BALANCE_START_DATE, end, balanceEntries);
+  const currentTotal = creditedMinutes(balanceEntries);
+  controls.dailyTarget.value = timeValueFromMinutes(Math.round(dailyTargetMinutes(monthStart)));
+  controls.overtimeLabel.textContent = month === localMonth()
+    ? "Saldo seit 01.06.2026 bis gestern"
+    : "Saldo seit 01.06.2026 bis Monatsende";
+  controls.totalHours.textContent = formatDurationWithDecimal(total);
   controls.overtimeBalance.textContent = formatSignedDuration(currentTotal - expected);
   controls.totalDays.textContent = String(workDays.size);
   controls.averageHours.textContent = formatDuration(workDays.size ? Math.round(total / workDays.size) : 0);
@@ -663,6 +824,7 @@ async function syncUi() {
   setMessage(neonClient ? "" : "Demo-Modus: Neon-Konfiguration für die Datenbank ergänzen.");
   if (signedIn) {
     try {
+      await loadTargetHistory();
       renderTargetHistory();
       await refresh();
       fillForm(todayEntry());
@@ -768,7 +930,7 @@ function excelDayRows() {
       cells.push(excelCell(toTimeInput(entry?.clock_out), "time"));
     }
 
-    const total = dayEntries.reduce((sum, entry) => sum + workedMinutes(entry), 0);
+    const total = creditedMinutesForDate(date, dayEntries);
     cells.push(excelCell(formatDecimalHours(total), "number"));
     cells.push(excelCell("", "number"));
     cells.push(excelCell(exportReason(dayEntries), "reason"));
@@ -832,10 +994,6 @@ function excelFileName() {
   return `zeiterfassung-${controls.month.value}.xls`;
 }
 
-function shareFileName() {
-  return `zeiterfassung-${controls.month.value}.html`;
-}
-
 function downloadExcel() {
   const blob = new Blob([excelContent()], { type: "application/vnd.ms-excel;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -849,9 +1007,9 @@ function downloadExcel() {
 }
 
 async function shareExcel() {
-  setMessage("Datei fÃ¼r E-Mail wird vorbereitet.");
-  const file = new File([excelContent()], shareFileName(), {
-    type: "text/html",
+  setMessage("Excel-Datei für E-Mail wird vorbereitet.");
+  const file = new File([excelContent()], excelFileName(), {
+    type: "application/vnd.ms-excel;charset=utf-8",
   });
 
   try {
@@ -868,11 +1026,11 @@ async function shareExcel() {
       setMessage("E-Mail wurde abgebrochen.");
       return;
     }
-    setMessage("E-Mail-Freigabe ist nicht verfÃ¼gbar. Die Datei wird heruntergeladen.");
+    setMessage("E-Mail-Freigabe ist nicht verfügbar. Die Excel-Datei wird heruntergeladen.");
   }
 
   downloadExcel();
-  setMessage("Die Datei wurde heruntergeladen. Am Handy kannst du sie über die Dateifreigabe senden.");
+  setMessage("Die Excel-Datei wurde heruntergeladen. Am Handy kannst du sie über die Dateifreigabe senden.");
 }
 
 $("#googleLoginButton").addEventListener("click", signInWithGoogle);
@@ -901,6 +1059,7 @@ controls.clockInButton.addEventListener("click", () => stamp("in"));
 controls.clockOutButton.addEventListener("click", () => stamp("out"));
 controls.clockIn.addEventListener("blur", () => cleanTimeField(controls.clockIn));
 controls.clockOut.addEventListener("blur", () => cleanTimeField(controls.clockOut));
+controls.type.addEventListener("change", () => updateEntryTypeFields(true));
 
 controls.date.addEventListener("change", () => {
   setEntryMessage("");
