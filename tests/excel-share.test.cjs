@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 test('email sharing uses an Excel attachment instead of HTML', async () => {
   const source = fs.readFileSync(path.join(__dirname, '../app-neon.js'), 'utf8');
-  const excelFileName = source.match(/function excelFileName\(\) \{[^]*?\n\}/)[0];
+  const excelFileName = source.match(/function excelFileName[^]*?(?=\r?\n\r?\nfunction downloadExcel)/)[0];
   const shareExcel = source.match(/async function shareExcel\(\) \{[^]*?\n\}/)[0];
   const shared = [];
 
@@ -20,6 +20,11 @@ test('email sharing uses an Excel attachment instead of HTML', async () => {
 
   const context = vm.createContext({
     controls: { month: { value: '2026-10' } },
+    Date: class extends Date {
+      constructor() {
+        super('2026-11-13T18:42:07');
+      }
+    },
     excelContent: () => '<table></table>',
     File: TestFile,
     navigator: {
@@ -34,6 +39,6 @@ test('email sharing uses an Excel attachment instead of HTML', async () => {
   await context.shareExcel();
 
   assert.equal(shared.length, 1);
-  assert.equal(shared[0].files[0].name, 'zeiterfassung-2026-10.xls');
+  assert.equal(shared[0].files[0].name, 'zeiterfassung-2026-10_2026-11-13_18-42-07.xls');
   assert.equal(shared[0].files[0].type, 'application/vnd.ms-excel;charset=utf-8');
 });

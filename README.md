@@ -30,7 +30,7 @@ Nach dem Öffnen der GitHub-Pages-Adresse am Handy kannst du im Browser `Add to 
 
 ## Export
 
-`Export Excel` lädt eine `.xls`-Datei für den ausgewählten Monat herunter. `Excel per E-Mail` übergibt dieselbe Excel-Datei an die mobile Dateifreigabe, wenn der Browser sie unterstützt; sonst wird sie heruntergeladen.
+`Export Excel` lädt eine `.xls`-Datei für den ausgewählten Monat herunter. Der Dateiname enthält das Exportdatum und die Uhrzeit, damit mehrere Zwischenstände desselben Monats eindeutig bleiben. `Excel per E-Mail` übergibt dieselbe Excel-Datei an die mobile Dateifreigabe, wenn der Browser sie unterstützt; sonst wird sie heruntergeladen.
 
 ## Wochenstunden
 

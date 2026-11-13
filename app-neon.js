@@ -999,8 +999,18 @@ function excelContent() {
 </html>`;
 }
 
-function excelFileName() {
-  return `zeiterfassung-${controls.month.value}.xls`;
+function excelFileName(now = new Date()) {
+  const timestamp = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-") + `_${[
+    String(now.getHours()).padStart(2, "0"),
+    String(now.getMinutes()).padStart(2, "0"),
+    String(now.getSeconds()).padStart(2, "0"),
+  ].join("-")}`;
+
+  return `zeiterfassung-${controls.month.value}_${timestamp}.xls`;
 }
 
 function downloadExcel() {
@@ -1017,7 +1027,8 @@ function downloadExcel() {
 
 async function shareExcel() {
   setMessage("Excel-Datei für E-Mail wird vorbereitet.");
-  const file = new File([excelContent()], excelFileName(), {
+  const fileName = excelFileName();
+  const file = new File([excelContent()], fileName, {
     type: "application/vnd.ms-excel;charset=utf-8",
   });
 
